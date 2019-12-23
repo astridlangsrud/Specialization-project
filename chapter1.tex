@@ -1,0 +1,24 @@
+%===================================== CHAP 1 =================================
+
+\chapter{Introduction}
+
+\begin{itemize}
+    \item Begin with something short about what I am going to write about, to set the cotext
+    \item Rewrite the introduction in the end, so I can refer to my conclusions ect...
+    \item Double check that thing regarding Alzheimers and the project is correct
+    \item Be clear on specifying the aim of this thesis
+\end{itemize}
+
+
+Alzheimer's disease is a very common form of dementia, and one of the most "common causes of death for older people" (https://www.nia.nih.gov/health/alzheimers-disease-fact-sheet). According to World Alzheimers report 2018, 50 million people suffer from dementia worldwide, and about two thirds of them have Alzheimers. This is a disease that is highly related to age, so as people live longer, Alzheimers become a more common disease. By 2050 the number of Alzheimers patients is expected to triple.
+
+Alzheimer's disease is a neurodegenerative disease that slowly develops over many years. On average, a person lives for seven years after the diagnose is set. One of the typical first symptoms is struggling with episodic memory. As the disease proceeds the patient will get personality changes and language troubles, and eventually the body functions will collapse and the patient will die.The suffering is big for the patients and their family.  Also the global cost for the disease is massive. The money spent on dementia was estimated to be 1 trillion US dollars for 2018 ( Alzheimers report 2018).
+Today there are no good treatments of the disease, and what causes it and how it develops in the brains is not completely understood.  By its severe consequences for individuals and for the society, it is no doubt that research on this disease is of importance.
+
+Because of its major impacts, Alzheimer's disease is a popular field to do research on. At the Kavli institute at NTNU they have an ongoing project where they record neural activity in brains from rats with and without Alzheimers. For my master thesis in the spring 2020 I will get access to the data from these experiments, and apply statistical analysis. 
+
+The data takes the form of time points for spiking of # individual neurons over time. It is known that neurons connect to each other, so that the activity of one neuron can affect the activity of another. When scientist model a neural network, these connections are typically regarded as being fixed. However, in reality the brain is a dynamic system. The changing of neural connections in the brain is referred to as synaptic plasticity, and gives rise to learning and memory. Since the main  characteristics of Alzheimer's disease is troubling with memory and learning, an hypothesis is that the the synaptic plasticity in Alzheimers brains has some differences to that in normal brains. So the goal for my master thesis develop a model for the dynamics of the neural connections, and investigate if there is a significant difference between data recorded from networks with Alzheimer's compared to those without. 
+
+This project report is a prework for the master thesis. The aim of this project is to develop a model for inferring synaptic plasticity, and perform various simple test cases with simulated data to explore the functionality and limitations of the model. The statistical framework in this thesis is inspired by a paper from Harvard University, "A framework for studying synaptic plasticity with neural spike train data". The paper describes a way of using GLM and particle Markov Chain Monte Carlo for modeling synaptic plasticity. The way in which the synaptic connections are changing seems to follow some rules, called "learning rules". In the paper two kinds of learning rules are presented and compared.
+
+In this work I will build up the model myself, and include the mathematics behind in more detail, do some changes and apply it to the Alzheimer's/non-Alzheimer's data from the Kavli institute.

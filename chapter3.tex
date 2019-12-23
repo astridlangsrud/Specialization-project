@@ -1,0 +1,213 @@
+%===================================== CHAP 3 =================================
+
+\chapter{Theory}
+
+As described in section \ref{set_up} the known data is the spike trains for the $N$ neurons. The goal is to study how the connections between the neurons changes over time based on this data. The aim of this chapter is to develop a model for neural spiking, present a method to infer the time varying weights from the data and explain the involved statistical concepts. 
+%In section \ref{GLM} it will be explained how the spiking can be modelled by a Bernoulli Generalized Linear Model (GLM). 
+
+\subsection{GLM}
+\label{GLM}
+For one neuron at one time step, the situation of spiking or not spiking can be considered as a Bernoulli process, with some time dependent spiking rate $\lambda (t)$. Considering the nature of the neural network it is reasonable to assume that this spiking rate is largely influenced by the spike history of the neuron itself and of the other neurons. This relationship can be modeled by a GLM. Section \ref{Intro_GLM} presents the general framework for GLMs, and the later sections describes how this is applied for the actual problem. 
+\subsubsection{Introduction to GLM}
+\label{Intro_GLM}
+Consider the data set $ \{y_{i}, \bold{x_{i}}\}_{i=1}^{n} $ of $i$ sampling units, where $y_i$ represents an observed response value and $ \bold{x_i}$ are the corresponding explanatory variables. In ordinary linear regression the relationship between the dependent and independent variables is modeled by the linear function:
+
+\begin{equation}
+    \textbf{y} = \bm{\beta}\bf X + \bm{ \epsilon}
+\end{equation}
+
+where $\bm{\beta}$ is a vector of regression coefficients, and $\bm{ \epsilon}$ represents the error terms. The errors, $\epsilon_{i}$, are considered independent and identically distributed as $N(0, \sigma^{2})$.
+
+Even though this model is useful for many situations, it has some limitations. For example, if the range of $x_{i}$ is $(-\infty, \infty)$, letting it approach infinity while everything else is kept constant makes also $y_i$ approach infinity (or minus infinity if $\beta_i$ is negative). If then the range of $y$ should be restricted, the linear model is inappropriate. 
+
+%%Exemplify with neurons? I want to model it in the way that for every time step there is either a spike (y=1) or not (y=0).
+
+%%For such cases there exists a similar approach, but with a wider framework, namely Generalized Linear Models (GLM). In this section I am going to outline the basic ideas of GLMs, and explain how it can be used to model the behaviour of neurons. 
+
+Generalized linear models extends the framework of the general linear models, by allowing the response variable to come from several other distributions than the normal one. The response variable can now be distributed according to some exponential family, 
+
+\begin{equation}
+    f(y_i;\theta_i) = \text{exp}\Big(\frac{y_i \theta_i - b(\theta_i)}{\phi} \cdot w_i + c(y_i,\phi,w_i)\Big)
+\end{equation}
+
+where $b(\theta_i)$ and $c(y_i,\phi,w_i)$ are known functions, $\theta_i$ is the canonical parameter, $\phi$ is a nuisance parameter and $w_i$ is a weight function. The mean, $\mu_i$ is assumed to be a function of the linear predictor.
+
+The GLM framework can be summarized by the following three components:
+
+\begin{itemize}
+
+\item Response variable distributed as some exponential family
+
+\begin{equation}
+    y_{i} \sim f(y_i;\theta_i)
+\end{equation}
+
+with expected value, $E(y_i) = \mu_i$.
+
+\item Linear predictor
+
+\begin{equation}
+    \eta_i = \bf x_i^T \bm{ \beta}
+\end{equation}
+
+\item Link function
+
+\begin{equation}
+    \eta_i = g(\mu_i)
+\end{equation}
+
+\end{itemize}
+
+
+
+%Module pages from the GLM course (allowed as reference? Do I need reference here, or is this considered basic enough to not need a reference?)
+
+Often the link function used is the \textit{canonical link function}. This refer to the functional relationship between the canonical parameter and the mean,
+
+\begin{equation}
+\theta_i = g(\mu_i)
+\end{equation}
+
+
+
+Typically the $\beta$-values in the linear predictor are unknown, and the goal is to estimate these. Since one has a set of input and response variables, one wants to find the $\beta$-values that fits best to this data. This is done by searching for the values that makes the observed data most likely, namely those that maximizes the likelihood:
+
+\begin{equation}
+    L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta})
+\end{equation}
+
+\subsubsection{Bernoulli GLM and inference}
+In a Bernoulli process the response variable, $y_i$, takes the value 1 with a probability $\pi_i$, and 0 with the probability $1-\pi_i$. In Bernoulli regression the response variable have the Bernoulli distribution
+
+\begin{equation}
+\begin{split}
+    f(y_i|\pi_i) = Ber(\pi_i) = \pi_i^{y_i}(1-\pi_i)^{1-y_i}\\
+    = \text{exp} ( y_i  \text{log}\big(\frac{\pi_i}{1-\pi_i}\big) + \text{log}(1-\pi_i))
+\end{split}
+\end{equation}
+
+A probability parameter can only take value in $[0,1]$. Thus the inverse of the link function, the \textit{response function}, have to be a mapping from the real line to $[0,1]$. The most common is the \textit{logit} link function, which is the canonical link in this case,
+
+\begin{equation}
+    \eta_i = g(\pi_i) = ln(\frac{\pi_i}{1-\pi_i}) \Leftrightarrow 
+    \pi_i = \mu_i = h(\eta_i) = \frac{exp(\eta_i)}{1+exp(\eta_i)}
+\end{equation}
+
+For doing inference, the likelihood function, log-likelihood function and score function is useful. Given a collection of n observations $\{(y_1, {\bf x_1}), (y_2, {\bf x_2}),...,(y_n, {\bf x_n})\}$ from a Bernoulli process, the likelihood function is given as
+
+\begin{equation}
+    L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta}) = \prod_{i=1}^{n} \pi_i^{y_i}(1-\pi_i)^{1-y_i}
+\end{equation}
+
+This gives the loglikelihood,
+
+\begin{equation}
+    l(\bm{\beta}) = \prod_{i=1}^{n} ln(\pi_i^{y_i}(1-\pi_i)^{1-y_i})  = \sum_{i=1}^{n} y_i ln(\frac{\pi_i}{1-\pi_i}) + ln(1-\pi_i)
+\end{equation}
+
+Then, substituting in $\pi_i = \frac{exp(\eta_i)}{1+exp(\eta_i)}$, one arrives at
+
+\begin{equation}
+    l(\bm{\beta}) = \sum_{i=1}^{n} y_i \eta_i = {\bf x_i^T} \bm{ \beta} - ln(1 + exp(\bf x_i^T \bm{ \beta}))
+\end{equation}
+
+The score function is the vector of partial derivatives of the loglikelihood. In the Bernoulli case the score function can be derived as follows
+
+\begin{equation}
+s(\bm{\beta}) = \sum_{i=1}^{n}s_i(\bm{\beta}) = \sum_{i=1}^{n} \frac{\partial l_i(\bm{\beta})}{\partial \bm{\beta}} = \sum_{i=1}^{n} {\bf x_i} \Big ( y_i - \frac{exp({\bf x_i^T} \bm{ \beta})}{1 + exp({\bf x_i^T} \bm{ \beta})}\Big )
+\end{equation}
+
+For a convex problem inference can be done using the loglikelihood and score function directly. The goal is to find the parameters that maximizes the likelihood. A simple optimization algorithm, is the gradient ascent method where one searches in the parameter space in the direction of positive gradient. 
+
+In the gradient ascent method one begins with some initial guess $\beta = \beta^0$, and iterates towards the solution by the direction of the gradient of $\beta^i$, and updating the parameters to move in that direction by some step length $\gamma$.
+
+\begin{equation}
+    \beta^{i+1} = \beta^{i} + \gamma s(\beta)
+\end{equation}
+
+For a suitable problem this will converge, and eventually the parameters will have a value sufficiently close to that of maximum likelihood.
+
+%Let $\{t_0, t_1, ..., t_n\}$ be a sequence of equally spaced time steps in [0,T] and let $s_i(t_j) \in \{0,1\}$ be the random event taking value 1 if $N_i$ spikes in the time interval $(t_{j-1}, t_{j})$, and 0 otherwise. If the time intervals are so small that the probability of covering more then one spike is negligible, each time interval can be regarded as a Bernoulli process with some probability, $p$, of spiking. This $p$ can be dependent on for instance the spike history of the other neurons, and the weight matrix.  
+
+
+\subsection{Markov chain Monte Carlo sampling}
+In the problem of modeling time varying weights in a neural network, the parameter space is very big. For every time step $t$ there is an unknown $N \times N$ weight matrix, that we want to do inference on, but only $N$ data values. So with $N^2$ unknowns, the resulting problem is not convex, and cannot be solved with the gradient ascent method. However, there are strong correlations and regulations in the picture. It is possible to take advantage of this prior knowledge by using Markov chain Monte Carlo (MCMC) techniques. Section \ref{Bayesian} gives a brief description of the Bayesian framework, which is a basis for MCMC. In the section \ref{Metropolis} one of the most general MCMC algorithms, the  Metropolis-Hastings algorithm, will be described. 
+\subsubsection{The Bayesian framework}
+\label{Bayesian}
+
+Given some data from a parametric distribution $P(x;\theta)$ where the parameter, $\theta$, is unknown, the posterior distribution of the parameter given the data can be expressed according to Bayes theorem, as follows.
+
+\begin{equation}
+    P(\theta | x) = \frac{P(x|\theta)P(\theta)}{P(x)}
+\end{equation}
+
+Having a sample from this distribution, one can estimate the parameter value to be the mean value of the sample. However, sampling from this distribution is in most cases not so straight forward. The denominator, $P(x)$, calculated as
+
+\begin{equation}
+    P(x) = \int P(x,\theta)d\theta
+\end{equation}
+
+can be too complicated to solve. 
+
+There are methods to sample from the posterior distribution without having to deal with the $P(x)$. Given the data, $x$, $P(x)$ is a constant value. Hence, the posterior distribution is proportional to the numerator, $P(x|\theta)P(\theta)$. 
+
+\begin{equation}
+    P(\theta | x) \propto P(x|\theta)P(\theta)
+\end{equation}
+
+ The first factor is the likelihood that the known data would be observed for a given $\theta$. The second is the prior distribution of $\theta$, and represents the knowledge one has of $\theta$ before seeing the data. In this sense, the posterior distribution is a combination of the prior knowledge of $\theta$ and the new knowledge gained from the observations. The relative amount that each of these contributes to the posterior depends on their variances. If the prior knowledge is that the parameter exists in some narrow window, and this prior knowledge is very certain, the variance in the prior distribution can be set very low. In other cases we might have almost zero information on how the parameter is, and we can set the variance to be high. 
+
+\subsubsection{Metropolis-Hastings algorithm}
+\label{Metropolis}
+A Markov chain Monte Carlo technique utilizes, as the name suggests, a combination of Markov chains with Monte Carlo sampling. Monte Carlo methods uses "repeated random sampling to make numerical estimations of unknown parameters." \text{(https://towardsdatascience.com/an-overview-of-monte-carlo-methods-675384eb1694)} 
+As noted in the previous section, it can be difficult to sample directly from the posterior distribution. The idea of MCMC is to construct a Markov chain that has a limiting distribution equal to the posterior distribution, and draw samples from this. This means that in collecting sample values $\{\theta_0, \theta_1, \theta_2,...\}$ for an unknown parameter $\theta$, the sample $\{\theta_m, \theta_{m+1}, \theta_{m+2},...\}$ will approximately correspond to a random sample from the posterior distribution for $m$ large enough. 
+
+The Metropolis-Hastings algorithm is initiated by guessing some first value of the parameter, $\theta_0$, for the sample. In every iteration a new value $\theta_{new}$ is drawn from a proposal distribution, $Q(\theta_{new}|\theta_i)$, that is dependent on the previous accepted $\theta$-value for the sample, $\theta_i$. Q can for example be a gaussian distribution with mean value equal to $\theta_i$. This is the Markov chain part of the algorithm. The next step is to determine if $\theta_{new}$ is accepted for the sample or not. This is done by computing the ratio
+
+\begin{equation}
+    \frac{P(\theta_{new}|{\bm x})}{P(\theta_i|{\bm x})} = 
+    \frac{P({\bm x}|\theta_{new})P(\theta_{new})}{P({\bm x}|\theta_{i})P(\theta_{i})}
+\end{equation}
+
+If this ratio is greater than or equal to one, the suggestion $\theta_{new}$ is directly accepted. If the ratio is less than one, the suggestion is accepted with a probability equal to the ratio. If $\theta_{new}$ is accepted, we set $\theta_{i+1} = \theta_{new}$, and if not we set $\theta_{i+1} = \theta_i$.
+
+\subsection{Applied to the neural data...}
+This section will give an outline of how the Bernoulli GLM and MCMC sampling can be used to make inference on the synaptic weights of neurons in a network. The variable $s_i(t)$ for a neuron $i$ at time $t$, as defined in section ??, can be considered as a stochastic variable from a Bernoulli process. The probability parameter, $\pi_{it}$, represents the probability that neuron $i$ will fire an action potential in time bin $(t,t+1)$. The linear predictor, $\eta_{it}$ consists of the spike history of the neurons, scaled by the synaptic weights from them to neuron $i$, in addition to a background firing rat for neuron $i$. As for a Bernoulli GLM the parameter and the linear predictor is connected through a logit link. This can be expressed mathematically as
+
+\begin{equation}
+\begin{split}
+    P(s_{it}|S_{t-1}, W_t) =  Ber(\pi_{it}) = \pi_{it}^{s_it}(1-\pi_{it})^{1-s_{it}} \\ \pi_{it} = h(\eta_{it})= \frac{exp(\eta_{it})}{1+exp(\eta_{it})}\\
+    \eta_{it} = \Big (\sum_{j=0}^{N}\sum_{t'=0}^{t'=t-1} w_{ji,t'}s_{jt'} \Big) + b_i \\
+    P(S_t|W_t) = \prod_{i,t} P(s_{it}|S_{t-1}, W_t)
+\end{split}
+\end{equation}
+
+This corresponds to the likelihood of the observed spiking, given some weights. The prior will be dependent on the learning rule later, but for this projects it is set to be a restriction on how much a weight is allowed to vary from one time step to another, namely
+
+\begin{equation}
+    \Gamma = \sum_{j=0}^{N} \sum_{t=0}^{T-1} (w_{ji,t+1}-w_{ji,t})^2
+\end{equation}
+
+The prior distribution is a Gauss distribution of $\Gamma$ with zero mean and some variance $\sigma$. Hence, we have the following expression for the posterior distribution for the weights
+
+\begin{equation}
+        P(\{W_t\}_{t=1}^{T}|S_t) = \frac{P(S_t|W_t)\times P(W_t)}{P(S_t)} = \frac{\Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\}}{P(S_t)} 
+\end{equation}
+
+\begin{equation}
+        P(S_t) = \int \Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\} d{W_t}
+\end{equation}
+
+Since inference will be made by the use of MCMC, the denominator $P(S_t)$ can just be regarded as a constant, and there is no need to calculate it. For the MCMC procedure it will be set some initial guess for the weight trajectory $W_t^0$. For the test cases in this project, this will be done in two ways. In some cases the initial guess will be set equal to the actual weights used for the spike simulations. This will be to investigate whether the method is able to stay at the correct solution. In other cases the initial weight for the first time point $W_{t_1}^0$ will be specified and the rest of the initial weight trajectory will be drawn one and one from a normal distribution with mean equal to the previous time point. The proposal distribution will be a  multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration and no covariances between them. 
+
+
+
+
+
+
+
+
+
+
+
+\cleardoublepage
