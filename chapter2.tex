@@ -2,7 +2,7 @@
 
 \chapter{Modeling neurons}
 
-Before applying statistical tools, it is necessary to define a model that captures the significant features of an actual neural network. Section \ref{structure_nn} gives a brief description of signaling and connectivity in neural networks, and the hallmarks for AD in the brain. For the first part the main source used is the book \textit{Neuroscience} \cite{Purves} and for the second part the content is based on sources (Gomez-Isla et al., Witter 2011, Wikipedia). Section \ref{Lab} provides an outline of the lab experiments that produces the data. The information is based on the description of the lab set up in Katrine's master thesis. This is the same lab set up as will be used for this project. In section \ref{set_up} the  framework of the mathematical model is defined with reference to the concepts introduced in the section before. This framework is inspired by the model in Linderman 2016. The purpose of this section is to illustrate how the models are representing the real world, and to motivate a practical understanding. 
+Before applying statistical tools, it is necessary to define a model that captures the significant features of an actual neural network. Section \ref{structure_nn} gives a brief description of signaling and connectivity in neural networks, and the hallmarks for AD in the brain. For the first part the main source used is the book \textit{Neuroscience} \cite{Purves} and for the second part the content is based on sources \cite{Gomez,Witter:2011}. Section \ref{Lab} provides an outline of the lab experiments that produces the data. The information is based on the description of the lab set up in Katrine's master thesis. This is the same lab set up as will be used for this project. In section \ref{set_up} the  framework of the mathematical model is defined with reference to the concepts introduced in the section before. This framework is inspired by the model in Linderman 2016. The purpose of this section is to illustrate how the models are representing the real world, and to motivate a practical understanding. 
 
 %En av de som Katrine sendte
 %http://www.scholarpedia.org/article/Entorhinal_cortex
@@ -146,7 +146,7 @@ The way in which the weights are changing is expected to follow some rules, call
 \end{equation}
 
 where $l$ is a learning rule depending on the current weights and the spike history. Experimental research have discovered some typical learning rules. One that is famous and quite simple is the spike-timing dependent plasticity (STDP). %https://www.nature.com/articles/nn0900_919 
-In this rule the weight between two neurons are updated according to the spike history of those two neurons only. There are other rules where a weight can be dependent on the spike history of the whole network. In the STDP rule the weight $w_{ij}$, going from neuron $i$ to neuron $j$, is increased whenever neuron $j$ spikes shortly after neuron $i$, and decreased if neuron $i$ spikes shortly after neuron $j$. The rule looks like (Linderman dissertation 2016)
+In this rule the weight between two neurons are updated according to the spike history of those two neurons only. There are other rules where a weight can be dependent on the spike history of the whole network. In the STDP rule the weight $w_{ij}$, going from neuron $i$ to neuron $j$, is increased whenever neuron $j$ spikes shortly after neuron $i$, and decreased if neuron $i$ spikes shortly after neuron $j$. The canonical STDP rule looks like (Linderman dissertation 2016)
 
 \begin{equation}
     \begin{split}
@@ -158,10 +158,17 @@ In this rule the weight between two neurons are updated according to the spike h
 
 The parameters $\tau_+$ and $\tau_-$ affects the rage of time intervals in which the spiking contributes to the weight updates, and the parameters $A_+$ and $A_-$ affects the size of the updates. 
 
+The multiplicative STDP rule looks like
+
+\begin{equation}
+    l(w_{ij}(t), S_{\leq t}) = \Tilde{l}_+(S_{<t}, A_+,\tau_+)(w_{max} - w_{ij}(t))  - \Tilde{l}_-(S_{<t}, A_-,\tau_-)(w_{ij}(t) - w_{min})
+\end{equation}
+
+where $\Tilde{l}_{\pm} = min(l_{\pm},1)$, and $w_{max}$ and $w_{min}$ are upper and lower bounds for the weights.
+
 \begin{itemize}
     \item More on Hebbian learning
-    \item Use the papers I found on this. Important to show that I know what is done on this field
-    \item Include also the other learning rule
+    \item Use the papers I found on this. I have to show that I know something about what is done on this field
 \end{itemize}
 
 
