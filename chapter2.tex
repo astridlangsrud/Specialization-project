@@ -2,7 +2,7 @@
 
 \chapter{Modeling neurons}
 
-Before applying statistical tools, it is necessary to define a model that captures the significant features of an actual neural network. Section \ref{structure_nn} gives a brief description of signaling and connectivity in neural networks, and the hallmarks for AD in the brain. For the first part the main source used is the book \textit{Neuroscience} \cite{Purves} and for the second part the content is based on sources \cite{Gomez,Witter:2011}. Section \ref{Lab} provides an outline of the lab experiments that produces the data. The information is based on the description of the lab set up in Katrine's master thesis. This is the same lab set up as will be used for this project. In section \ref{set_up} the  framework of the mathematical model is defined with reference to the concepts introduced in the section before. This framework is inspired by the model in Linderman 2016. The purpose of this section is to illustrate how the models are representing the real world, and to motivate a practical understanding. 
+Before applying statistical tools, it is necessary to define a model that captures the significant features of an actual neural network. The aim of this chapter is to describe the relevant concepts from neuroscience, build a modeling framework that fits to those concepts and to motivate a practical understanding. Section \ref{structure_nn} gives a brief description of signaling and connectivity in neural networks, and the hallmarks for AD in the brain. For the first part the main source used is the book \textit{Neuroscience} \cite{Purves} and for the second part the content is based on sources \cite{Gomez,Witter:2011}. Section \ref{Lab} provides an outline of the lab experiments that produces the data. The information is based on the description of the lab set up in Katrine's master thesis. This is the same lab set up as will be used for this project. In section \ref{set_up} the  framework of the mathematical model is defined with reference to the concepts introduced in the section before. This framework is inspired by the model in Linderman 2016.  
 
 %En av de som Katrine sendte
 %http://www.scholarpedia.org/article/Entorhinal_cortex
@@ -14,35 +14,34 @@ Before applying statistical tools, it is necessary to define a model that captur
 
 \textsc{Neuron and connections}\\
 The brain comprise a complex network of neurons that work together by transmitting signals to each other. The basic unit, the neuron, 
- consists of a cell body (soma), an axon and dendrites, and is illustrated in the following figure.  (Change to better figures (or make my own) later)
+ consists of a cell body (soma), an axon and dendrites. Figure \ref{neuron} shows an illustration of a neuron.
 \begin{figure}[h]
+    \caption{}
+    \label{neuron}
     \centering
     \includegraphics[scale=0.3]{Neuron.jpeg}
 \end{figure} 
 
-Neurons can "communicate" through a connection of the axon of one neuron and the dendrite of another. This link is called a synapse, and is in practice a short gap, where chemical units called neurotransmitters can flow from the axon to the dendrite. The sending and the recieving neuron are referred to as the "presynaptic neuron" and the "postsynaptic neuron", respectively. 
+Neurons can transmit electrical signals to each other through a connection of the axon of one neuron with the dendrite of another. The sending and the receiving neuron are referred to as the "presynaptic neuron" and the "postsynaptic neuron", respectively. Such a connection between two neurons is called a synapse, and is in practice a short gap where chemical units, called neurotransmitters, is allowed to flow from the axon to the dendrite. 
 
-%Output signals from the nerve cell are transmitted through the axon, and input signals are received through the dendrites.
-%A signal consists of an action potential that propagates along the axon.
-
-This signaling takes place in response to something called and action potential in the presynaptic neuron. When a neuron is at rest, there is a constant potential difference between the inside and the outside of its cell membrane. An action potential is a rapid increase in this membrane potential, caused by ion flows through channels in the membrane. This action potential then propagates along the axon until it reaches its end. In order for the action potential to occur, the potential difference must reach a certain threshold value, which happens in response to some stimuli. If this threshold is reached, the action potential will take place no matter what. In other words there is an all-or-non property. This phenomenon is illustrated by the following figure.
+This signaling happens in response to something called an action potential in the presynaptic neuron. When a neuron is at rest, there is a constant potential difference between the inside and the outside of the neuron's cell membrane. An action potential is a rapid increase in this membrane potential, caused by ion flows through channels in the membrane. This action potential then propagates along the axon until it reaches the synapse, and ends up as an electrical signal to the connected neuron. In order for the action potential to occur, the potential difference must reach a certain threshold value. If this threshold is reached, the action potential will take place no matter what. In other words there is an all-or-non property, and if it first takes place the action potential will always have the same strength. This phenomenon is illustrated in figure \ref{AP}.
 
 \begin{figure}[h]
+\caption{}
+\label{AP}
 \begin{subfigure}
 \centering
-\includegraphics[scale=0.8]{AP.jpg}
+\includegraphics[scale=0.7]{AP.jpg}
 \end{subfigure}
 \begin{subfigure}
 \centering
-\includegraphics[scale=0.27]{Axjk4.jpg}
+\includegraphics[scale=0.21]{Axjk4.jpg}
 \end{subfigure}
 \end{figure} 
 
-Some signals can increase the likelihood of an action potential to also arise in the postsynaptic neuron, while other can decrease it. This is respectively called excitatory and inhibitory signals. In this sense the firing in one neuron affects the firing in other neurons, and a signal can propagate through the network, and eventually end up for example in a muscle and cause a contraction. 
+The developing of an action potential happens in response of some stimuli. This can be external stimuli from some sense, for example a ray of light that hits the eye. Also, action potentials can develop after the receiving of an electrical signal from another neuron. When a signal increase the likelihood of an action potential to also arise in the postsynaptic neuron, this is referred to as an excitatory signal. This enables the possibility for a signal to propagate through the network, and eventually end up for example in a muscle and cause a contraction. On the contrary there are also signals that decrease the chance that the postsynaptic neuron will fire. These are called inhibitory signals.
 
-The  strength of these neural connections are not fixed, but can change over time. For example can frequently activation of a synapse strengthen the synaptic connection. This phenomenon is called "long-term potentiation (LTP) of a synapse. Other times activation of a synapse can weaken the connection over time, known as "long-term depression". These changes of connections are referred to as synaptic plasticity, and is the mechanism that gives rise to learning and memory. \\
-
-%The changing of connections seem to follow some underlying rules, learning rules.
+The  strength of these neural connections are not fixed, but can change over time. Strength of synapses refer to the probability that the postsynaptic neuron will be affected by the signal. A frequent activation of a synapse can strengthen the synaptic connection. This phenomenon is called "long-term potentiation (LTP) of a synapse. Other times activation of a synapse can weaken the connection over time, known as "long-term depression". These changes of connections are referred to as synaptic plasticity, and is the mechanism that gives rise to learning and memory. \\
 
 \textsc{Entorhinal cortex and Alzheimer's disease}
 
@@ -53,10 +52,12 @@ The  strength of these neural connections are not fixed, but can change over tim
 \end{itemize}
 %The human brain is very good at forgetting. The hippocampus is a structure in the brain that has been associated with various memory functions
 
-The entorhinal cortex is a part of the brain where the earliest indications for AD can be seen. This is where the brain samples for the experiments will be taken from.   
+The data basis for this project are lab recordings on mice brains with and without AD. These recordings are done on a part of the brain called he entorhinal cortex. This part is used, since the entorhical cortex is where the earliest indications for AD can be seen. Figure \ref{EC} shows where in the brain the entorhinal cortex is located. 
 
 
 \begin{figure}[h]
+    \caption{}
+    \label{EC}
     \centering
     \includegraphics[scale=0.35]{Entorhinal_cortex.png}
     \label{brain}
@@ -156,7 +157,7 @@ In this rule the weight between two neurons are updated according to the spike h
     \end{split}
 \end{equation}
 
-The parameters $\tau_+$ and $\tau_-$ affects the rage of time intervals in which the spiking contributes to the weight updates, and the parameters $A_+$ and $A_-$ affects the size of the updates. 
+The parameters $\tau_+$ and $\tau_-$ affects the rage of time intervals in which the spiking contributes to the weight updates. Decreasing the $\tau$ value corresponds to shrinking the window for where spiking has significant impact on the plasticity. According to \cite{Song} experiments have shown that the value for $\tau_+$ is in the order of ten milliseconds. Some experiments suggest a value for $\tau_-$ of the same size, while other suggests a value somewhat larger. The parameters $A_+$ and $A_-$ scales the size of the updates, and corresponds to the maximum value of weight updates when $\delta t$ is small. For a "stable competitive synaptic modification", it is necessary that $A_-\tau_- > A_+\tau_+$, \cite{Song}. Therefore, if the two $\tau$-values are set equal, the value for $A_-$ has to be larger than $A_+$.
 
 The multiplicative STDP rule looks like
 
@@ -164,7 +165,7 @@ The multiplicative STDP rule looks like
     l(w_{ij}(t), S_{\leq t}) = \Tilde{l}_+(S_{<t}, A_+,\tau_+)(w_{max} - w_{ij}(t))  - \Tilde{l}_-(S_{<t}, A_-,\tau_-)(w_{ij}(t) - w_{min})
 \end{equation}
 
-where $\Tilde{l}_{\pm} = min(l_{\pm},1)$, and $w_{max}$ and $w_{min}$ are upper and lower bounds for the weights.
+where $\Tilde{l}_{\pm} = min(l_{\pm},1)$, and $w_{max}$ and $w_{min}$ are upper and lower bounds for the weights. 
 
 \begin{itemize}
     \item More on Hebbian learning

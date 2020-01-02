@@ -3,7 +3,7 @@
 \chapter{Theory}
 
 As described in section \ref{set_up} the known data is the spike trains for the $N$ neurons. The goal is to study how the connections between the neurons changes over time based on this data. The aim of this chapter is to develop a model for neural spiking, present a method to infer the time varying weights from the data and explain the involved statistical concepts. 
-%In section \ref{GLM} it will be explained how the spiking can be modelled by a Bernoulli Generalized Linear Model (GLM). 
+In section \ref{GLM} it will be explained how the spiking can be modelled by a Bernoulli Generalized Linear Model (GLM). The derivation of the equations in this section is inspired by the lectures from the GLM course I took (how can I refer to this? Module pages on blackboard).  
 
 \subsection{GLM}
 \label{GLM}
@@ -93,7 +93,7 @@ A probability parameter can only take value in $[0,1]$. Thus the inverse of the 
     \pi_i = \mu_i = h(\eta_i) = \frac{exp(\eta_i)}{1+exp(\eta_i)}
 \end{equation}
 
-For doing inference, the likelihood function, log-likelihood function and score function is useful. Given a collection of n observations $\{(y_1, {\bf x_1}), (y_2, {\bf x_2}),...,(y_n, {\bf x_n})\}$ from a Bernoulli process, the likelihood function is given as
+For doing inference, the likelihood function and log-likelihood function is useful. Given a collection of n observations $\{(y_1, {\bf x_1}), (y_2, {\bf x_2}),...,(y_n, {\bf x_n})\}$ from a Bernoulli process, the likelihood function is given as
 
 \begin{equation}
     L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta}) = \prod_{i=1}^{n} \pi_i^{y_i}(1-\pi_i)^{1-y_i}
@@ -111,21 +111,49 @@ Then, substituting in $\pi_i = \frac{exp(\eta_i)}{1+exp(\eta_i)}$, one arrives a
     l(\bm{\beta}) = \sum_{i=1}^{n} y_i \eta_i = {\bf x_i^T} \bm{ \beta} - ln(1 + exp(\bf x_i^T \bm{ \beta}))
 \end{equation}
 
+The goal is to find the parameters that maximizes the likelihood. For a convex problem inference can be done using gradient based iterative methods. The idea of such optimization algorithms is to searches in the parameter space in the direction of positive gradient to arrive at a maximum. One famous such method is the Newton method. Generally, for a function $f(x)$, starts by choosing some initial guess $x^{(0)}$, and hence update the approximation in every iteration by
+
+\begin{equation}
+    x^{(i+1)} = x^{(i)} - \frac{f'(x^{(i)})}{f''(x^{(i)})}
+\end{equation}
+
+The first and second derivative of a loglikelihood function is called the score function and the observed Fisher information matrix.
+
 The score function is the vector of partial derivatives of the loglikelihood. In the Bernoulli case the score function can be derived as follows
 
 \begin{equation}
 s(\bm{\beta}) = \sum_{i=1}^{n}s_i(\bm{\beta}) = \sum_{i=1}^{n} \frac{\partial l_i(\bm{\beta})}{\partial \bm{\beta}} = \sum_{i=1}^{n} {\bf x_i} \Big ( y_i - \frac{exp({\bf x_i^T} \bm{ \beta})}{1 + exp({\bf x_i^T} \bm{ \beta})}\Big )
 \end{equation}
 
-For a convex problem inference can be done using the loglikelihood and score function directly. The goal is to find the parameters that maximizes the likelihood. A simple optimization algorithm, is the gradient ascent method where one searches in the parameter space in the direction of positive gradient. 
-
-In the gradient ascent method one begins with some initial guess $\beta = \beta^0$, and iterates towards the solution by the direction of the gradient of $\beta^i$, and updating the parameters to move in that direction by some step length $\gamma$.
+The observed Fisher information matrix is defined as 
 
 \begin{equation}
-    \beta^{i+1} = \beta^{i} + \gamma s(\beta)
+    H(\beta) = - \frac{\partial^2 l(\beta)}{\partial \beta \partial \beta^T} = -\frac{\partial s(\beta)}{\partial \beta^T},
 \end{equation}
 
-For a suitable problem this will converge, and eventually the parameters will have a value sufficiently close to that of maximum likelihood.
+which for the Bernoulli case corresponds to
+
+\begin{equation}
+    H(\beta) = \sum_{i=1}^{n} {\bf x_i x_i^T} \pi_i (1-\pi_i)
+\end{equation}
+
+Hence, the Newton method for estimating $\beta$, is the iteration scheme
+
+\begin{equation}
+    \beta^{(i+1)} = \beta^{(i)} + \frac{s(\beta^{(i)}}{H(\beta^{(i)})}
+\end{equation}
+
+
+
+
+
+%In the gradient ascent method one begins with some initial guess $\beta = \beta^0$, and iterates towards the solution by the direction of the gradient of $\beta^i$, and updating the parameters to move in that direction by some step length $\gamma$.
+
+%\begin{equation}
+    %\beta^{i+1} = \beta^{i} + \gamma s(\beta)
+%\end{equation}
+
+%For a suitable problem this will converge, and eventually the parameters will have a value sufficiently close to that of maximum likelihood.
 
 %Let $\{t_0, t_1, ..., t_n\}$ be a sequence of equally spaced time steps in [0,T] and let $s_i(t_j) \in \{0,1\}$ be the random event taking value 1 if $N_i$ spikes in the time interval $(t_{j-1}, t_{j})$, and 0 otherwise. If the time intervals are so small that the probability of covering more then one spike is negligible, each time interval can be regarded as a Bernoulli process with some probability, $p$, of spiking. This $p$ can be dependent on for instance the spike history of the other neurons, and the weight matrix.  
 
