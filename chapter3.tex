@@ -1,14 +1,14 @@
 %===================================== CHAP 3 =================================
 
-\chapter{Theory}
+\chapter{Background and theory}
 
-As described in section \ref{set_up} the known data is the spike trains for the $N$ neurons. The goal is to study how the connections between the neurons changes over time based on this data. The aim of this chapter is to develop a model for neural spiking, present a method to infer the time varying weights from the data and explain the involved statistical concepts. 
+The goal is to study how the connections between the neurons changes over time based on this data. For this purpose... The aim of this chapter is to develop a model for neural spiking, present a method to infer the time varying weights from the data and explain the involved statistical concepts. 
 In section \ref{GLM} it will be explained how the spiking can be modelled by a Bernoulli Generalized Linear Model (GLM). The derivation of the equations in this section is inspired by the lectures from the GLM course I took (how can I refer to this? Module pages on blackboard).  
 
-\subsection{GLM}
+\section{Statistical concepts}
 \label{GLM}
 For one neuron at one time step, the situation of spiking or not spiking can be considered as a Bernoulli process, with some time dependent spiking rate $\lambda (t)$. Considering the nature of the neural network it is reasonable to assume that this spiking rate is largely influenced by the spike history of the neuron itself and of the other neurons. This relationship can be modeled by a GLM. Section \ref{Intro_GLM} presents the general framework for GLMs, and the later sections describes how this is applied for the actual problem. 
-\subsubsection{Introduction to GLM}
+\subsection{Generalized linear models}
 \label{Intro_GLM}
 Consider the data set $ \{y_{i}, \bold{x_{i}}\}_{i=1}^{n} $ of $i$ sampling units, where $y_i$ represents an observed response value and $ \bold{x_i}$ are the corresponding explanatory variables. In ordinary linear regression the relationship between the dependent and independent variables is modeled by the linear function:
 
@@ -76,7 +76,7 @@ Typically the $\beta$-values in the linear predictor are unknown, and the goal i
     L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta})
 \end{equation}
 
-\subsubsection{Bernoulli GLM and inference}
+\subsection{Bernoulli GLM and inference}
 In a Bernoulli process the response variable, $y_i$, takes the value 1 with a probability $\pi_i$, and 0 with the probability $1-\pi_i$. In Bernoulli regression the response variable have the Bernoulli distribution
 
 \begin{equation}
@@ -99,16 +99,19 @@ For doing inference, the likelihood function and log-likelihood function is usef
     L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta}) = \prod_{i=1}^{n} \pi_i^{y_i}(1-\pi_i)^{1-y_i}
 \end{equation}
 
-This gives the loglikelihood,
+The loglikelihood can then be derived as,
 
 \begin{equation}
-    l(\bm{\beta}) = \prod_{i=1}^{n} ln(\pi_i^{y_i}(1-\pi_i)^{1-y_i})  = \sum_{i=1}^{n} y_i ln(\frac{\pi_i}{1-\pi_i}) + ln(1-\pi_i)
+\begin{split}
+    l(\bm{\beta}) = log \prod_{i=1}^{n} (\pi_i^{y_i}(1-\pi_i)^{1-y_i})  =
+    \sum_{i=1}^n log (\pi_i^{y_i}(1-\pi_i)^{1-y_i})\\ =  \sum_{i=1}^{n} y_i log(\frac{\pi_i}{1-\pi_i}) + log(1-\pi_i)
+\end{split}
 \end{equation}
 
 Then, substituting in $\pi_i = \frac{exp(\eta_i)}{1+exp(\eta_i)}$, one arrives at
 
 \begin{equation}
-    l(\bm{\beta}) = \sum_{i=1}^{n} y_i \eta_i = {\bf x_i^T} \bm{ \beta} - ln(1 + exp(\bf x_i^T \bm{ \beta}))
+    l(\bm{\beta}) = \sum_{i=1}^{n} y_i \eta_i - log(1 + exp(\eta_i) = \sum_{i=1}^n y_i{\bf x_i^T} \bm{ \beta} - ln(1 + exp(\bf x_i^T \bm{ \beta}))
 \end{equation}
 
 The goal is to find the parameters that maximizes the likelihood. For a convex problem inference can be done using gradient based iterative methods. The idea of such optimization algorithms is to searches in the parameter space in the direction of positive gradient to arrive at a maximum. One famous such method is the Newton method. Generally, for a function $f(x)$, starts by choosing some initial guess $x^{(0)}$, and hence update the approximation in every iteration by
@@ -122,6 +125,7 @@ The first and second derivative of a loglikelihood function is called the score 
 The score function is the vector of partial derivatives of the loglikelihood. In the Bernoulli case the score function can be derived as follows
 
 \begin{equation}
+\label{eq:score}
 s(\bm{\beta}) = \sum_{i=1}^{n}s_i(\bm{\beta}) = \sum_{i=1}^{n} \frac{\partial l_i(\bm{\beta})}{\partial \bm{\beta}} = \sum_{i=1}^{n} {\bf x_i} \Big ( y_i - \frac{exp({\bf x_i^T} \bm{ \beta})}{1 + exp({\bf x_i^T} \bm{ \beta})}\Big )
 \end{equation}
 
@@ -140,6 +144,7 @@ which for the Bernoulli case corresponds to
 Hence, the Newton method for estimating $\beta$, is the iteration scheme
 
 \begin{equation}
+\label{eq:Newton}
     \beta^{(i+1)} = \beta^{(i)} + \frac{s(\beta^{(i)}}{H(\beta^{(i)})}
 \end{equation}
 
@@ -157,11 +162,10 @@ Hence, the Newton method for estimating $\beta$, is the iteration scheme
 
 %Let $\{t_0, t_1, ..., t_n\}$ be a sequence of equally spaced time steps in [0,T] and let $s_i(t_j) \in \{0,1\}$ be the random event taking value 1 if $N_i$ spikes in the time interval $(t_{j-1}, t_{j})$, and 0 otherwise. If the time intervals are so small that the probability of covering more then one spike is negligible, each time interval can be regarded as a Bernoulli process with some probability, $p$, of spiking. This $p$ can be dependent on for instance the spike history of the other neurons, and the weight matrix.  
 
-
-\subsection{Markov chain Monte Carlo sampling}
-In the problem of modeling time varying weights in a neural network, the parameter space is very big. For every time step $t$ there is an unknown $N \times N$ weight matrix, that we want to do inference on, but only $N$ data values. So with $N^2$ unknowns, the resulting problem is not convex, and cannot be solved with the gradient ascent method. However, there are strong correlations and regulations in the picture. It is possible to take advantage of this prior knowledge by using Markov chain Monte Carlo (MCMC) techniques. Section \ref{Bayesian} gives a brief description of the Bayesian framework, which is a basis for MCMC. In the section \ref{Metropolis} one of the most general MCMC algorithms, the  Metropolis-Hastings algorithm, will be described. 
-\subsubsection{The Bayesian framework}
+\subsection{Bayesian statistics and MCMC}
 \label{Bayesian}
+
+In the problem of modeling time varying weights in a neural network, the parameter space is very big. For every time step $t$ there is an unknown $N \times N$ weight matrix, that we want to do inference on, but only $N$ data values. So with $N^2$ unknowns, the resulting problem is not convex, and cannot be solved with the gradient ascent method. However, there are strong correlations and regulations in the picture. It is possible to take advantage of this prior knowledge by using Markov chain Monte Carlo (MCMC) techniques. Section \ref{Bayesian} gives a brief description of the Bayesian framework, which is a basis for MCMC. In the section \ref{Metropolis} one of the most general MCMC algorithms, the  Metropolis-Hastings algorithm, will be described.
 
 Given some data from a parametric distribution $P(x;\theta)$ where the parameter, $\theta$, is unknown, the posterior distribution of the parameter given the data can be expressed according to Bayes theorem, as follows.
 
@@ -199,34 +203,47 @@ The Metropolis-Hastings algorithm is initiated by guessing some first value of t
 
 If this ratio is greater than or equal to one, the suggestion $\theta_{new}$ is directly accepted. If the ratio is less than one, the suggestion is accepted with a probability equal to the ratio. If $\theta_{new}$ is accepted, we set $\theta_{i+1} = \theta_{new}$, and if not we set $\theta_{i+1} = \theta_i$.
 
-\subsection{Applied to the neural data...}
-This section will give an outline of how the Bernoulli GLM and MCMC sampling can be used to make inference on the synaptic weights of neurons in a network. The variable $s_i(t)$ for a neuron $i$ at time $t$, as defined in section ??, can be considered as a stochastic variable from a Bernoulli process. The probability parameter, $\pi_{it}$, represents the probability that neuron $i$ will fire an action potential in time bin $(t,t+1)$. The linear predictor, $\eta_{it}$ consists of the spike history of the neurons, scaled by the synaptic weights from them to neuron $i$, in addition to a background firing rat for neuron $i$. As for a Bernoulli GLM the parameter and the linear predictor is connected through a logit link. This can be expressed mathematically as
+\section{Studying synaptic plasticity}
+\subsection{Learning rules}
+
+The way in which the weights are changing is expected to follow some rules, called learning rules. The time development of the weights can be represented by
 
 \begin{equation}
-\begin{split}
-    P(s_{it}|S_{t-1}, W_t) =  Ber(\pi_{it}) = \pi_{it}^{s_it}(1-\pi_{it})^{1-s_{it}} \\ \pi_{it} = h(\eta_{it})= \frac{exp(\eta_{it})}{1+exp(\eta_{it})}\\
-    \eta_{it} = \Big (\sum_{j=0}^{N}\sum_{t'=0}^{t'=t-1} w_{ji,t'}s_{jt'} \Big) + b_i \\
-    P(S_t|W_t) = \prod_{i,t} P(s_{it}|S_{t-1}, W_t)
-\end{split}
+    W_{t+1} = W_t + l(W_t, S_{\leq t}) + \epsilon
 \end{equation}
 
-This corresponds to the likelihood of the observed spiking, given some weights. The prior will be dependent on the learning rule later, but for this projects it is set to be a restriction on how much a weight is allowed to vary from one time step to another, namely
+where $l$ is a learning rule depending on the current weights and the spike history. Experimental research have discovered some typical learning rules. One that is famous and quite simple is the spike-timing dependent plasticity (STDP). %https://www.nature.com/articles/nn0900_919 
+In this rule the weight between two neurons are updated according to the spike history of those two neurons only. There are other rules where a weight can be dependent on the spike history of the whole network. In the STDP rule the weight $w_{ij}$, going from neuron $i$ to neuron $j$, is increased whenever neuron $j$ spikes shortly after neuron $i$, and decreased if neuron $i$ spikes shortly after neuron $j$. The canonical STDP rule looks like (Linderman dissertation 2016)
 
 \begin{equation}
-    \Gamma = \sum_{j=0}^{N} \sum_{t=0}^{T-1} (w_{ji,t+1}-w_{ji,t})^2
+    \begin{split}
+    l(w_{ij}(t), S_{\leq t}) = l_+(S_{<t}, A_+,\tau_+) - l_-(S_{<t}, A_-,\tau_-)\\ 
+    l_+(S_{\leq t}, A_+,\tau_+) = s_j(t) \sum_{t'=0}^{t} s_i(t') A_+ e^{(t-t')/\tau_+}\\ 
+    l_-(S_{\leq t}, A_-,\tau_-) = s_i(t) \sum_{t'=0}^{t} s_j(t') A_- e^{(t-t')/\tau_-}
+    \end{split}
 \end{equation}
 
-The prior distribution is a Gauss distribution of $\Gamma$ with zero mean and some variance $\sigma$. Hence, we have the following expression for the posterior distribution for the weights
+The parameters $\tau_+$ and $\tau_-$ affects the rage of time intervals in which the spiking contributes to the weight updates. Decreasing the $\tau$ value corresponds to shrinking the window for where spiking has significant impact on the plasticity. According to \cite{Song} experiments have shown that the value for $\tau_+$ is in the order of ten milliseconds. Some experiments suggest a value for $\tau_-$ of the same size, while other suggests a value somewhat larger. The parameters $A_+$ and $A_-$ scales the size of the updates, and corresponds to the maximum value of weight updates when $\delta t$ is small. For a "stable competitive synaptic modification", it is necessary that $A_-\tau_- > A_+\tau_+$, \cite{Song}. Therefore, if the two $\tau$-values are set equal, the value for $A_-$ has to be larger than $A_+$.
+
+The multiplicative STDP rule looks like
 
 \begin{equation}
-        P(\{W_t\}_{t=1}^{T}|S_t) = \frac{P(S_t|W_t)\times P(W_t)}{P(S_t)} = \frac{\Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\}}{P(S_t)} 
+    l(w_{ij}(t), S_{\leq t}) = \Tilde{l}_+(S_{<t}, A_+,\tau_+)(w_{max} - w_{ij}(t))  - \Tilde{l}_-(S_{<t}, A_-,\tau_-)(w_{ij}(t) - w_{min})
 \end{equation}
 
-\begin{equation}
-        P(S_t) = \int \Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\} d{W_t}
-\end{equation}
+where $\Tilde{l}_{\pm} = min(l_{\pm},1)$, and $w_{max}$ and $w_{min}$ are upper and lower bounds for the weights. 
 
-Since inference will be made by the use of MCMC, the denominator $P(S_t)$ can just be regarded as a constant, and there is no need to calculate it. For the MCMC procedure it will be set some initial guess for the weight trajectory $W_t^0$. For the test cases in this project, this will be done in two ways. In some cases the initial guess will be set equal to the actual weights used for the spike simulations. This will be to investigate whether the method is able to stay at the correct solution. In other cases the initial weight for the first time point $W_{t_1}^0$ will be specified and the rest of the initial weight trajectory will be drawn one and one from a normal distribution with mean equal to the previous time point. The proposal distribution will be a  multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration and no covariances between them. 
+\begin{itemize}
+    \item More on Hebbian learning
+    \item Use the papers I found on this. I have to show that I know something about what is done on this field
+\end{itemize}
+
+
+\subsection{Linderman's work}
+\label{Linderman}
+As mentioned, the methods in this project is inspired by a paper, "A framework for studying synaptic plasticity with neural spike train data", by Scott W. Linderman, Christopher H. Stock and Ryan P. Adams from 2014 (about the same material is also found in Scott Linderman's PhD thesis form 2016). It is therefore relevant to present some of the material and results from the paper, to point out which ideas I have taken from it. 
+
+
 
 
 

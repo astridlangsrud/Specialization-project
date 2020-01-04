@@ -1,15 +1,15 @@
 %===================================== CHAP 2 =================================
 
-\chapter{Modeling neurons}
+\chapter{??}
 
-Before applying statistical tools, it is necessary to define a model that captures the significant features of an actual neural network. The aim of this chapter is to describe the relevant concepts from neuroscience, build a modeling framework that fits to those concepts and to motivate a practical understanding. Section \ref{structure_nn} gives a brief description of signaling and connectivity in neural networks, and the hallmarks for AD in the brain. For the first part the main source used is the book \textit{Neuroscience} \cite{Purves} and for the second part the content is based on sources \cite{Gomez,Witter:2011}. Section \ref{Lab} provides an outline of the lab experiments that produces the data. The information is based on the description of the lab set up in Katrine's master thesis. This is the same lab set up as will be used for this project. In section \ref{set_up} the  framework of the mathematical model is defined with reference to the concepts introduced in the section before. This framework is inspired by the model in Linderman 2016.  
+Before going into the statistics and modeling, it is useful to give some context for the work. The aim of this chapter is to describe the relevant concepts from neuroscience, explain the background for the data material and motivate a practical understanding. Section \ref{structure_nn} gives a brief description of signaling and connectivity in neural networks, and the hallmarks for AD in the brain. For the first part the main source used is the book \textit{Neuroscience} \cite{Purves} and for the second part the content is based on sources \cite{Gomez,Witter:2011}. Section \ref{Lab} provides an outline of the lab experiments that produces the data. The information is based on the description of the lab set up in Katrine's master thesis. This is the same lab set up as will be used for this project. 
 
 %En av de som Katrine sendte
 %http://www.scholarpedia.org/article/Entorhinal_cortex
 %https://en.wikipedia.org/wiki/Entorhinal_cortex
 
 
-\subsection{Related neurology}
+\section{Concepts from neuroscience}
 \label{structure_nn}
 
 \textsc{Neuron and connections}\\
@@ -84,7 +84,7 @@ During the course of Alzheimer's disease there are happening significant changes
 %of these early neuronal pathologies the work in this thesis was aimed at developing a platform for
 %studying the LEC layer II neuronal population in vitro. (Katrines master)
 
-\subsection{Lab recordings}
+\section{Data material}
 
 \label{Lab}\\
 The data to be used are recordings from mouse brains with and without Alzheimer's. The ?? are currently in a process of developing techniques to keep the neuronal networks alive long enough for the Alzheimer's disease to develop properly??. However, similar experiments have been performed the last years, and the main techniques are the same. 
@@ -104,73 +104,6 @@ where $ap_{ix}$ is the recorded time for the x'th action potential for neuron $i
 
 
 
-\subsection{Model setup}
-\label{set_up}
-
-For the later calculations it is practical to represent the spike data in another format. Define
-
-\begin{equation}
-    t \in \{t_1, t_2, ..., t_n\} 
-\end{equation}
-
- where $\{t_1, t_2, ..., t_n\}$ is \ a sequence of equally spaced time steps in [0,T], where $t_{k}-t_{k-1} = t_1$. Also let $s_{i,t} \in \{0,1\}$ be a variable taking value 1 if neuron $i$ spikes in the time bin $(t_{k-1}, t_{k})$, and 0 otherwise. To keep as much information as possible, it is preferable to set the time intervals so small that there is very low probability that the neuron will spike more than once in the intervals. Then, at time $t$ we have a collection of $N$ sequences
-
-\begin{equation}
-    S_{t} = \{\{s_{i,t_1}, ,...,s_{i,t-1},s_{it}\}\}_{i=0}^{N} \quad s_{i,t_k} \in {0,1}
-\end{equation}
-
-This is illustrated in the following figure, where the top array is a spike train, and the bottom array is the corresponding binary values for the time bins
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.7]{Sp_t.png}
-\end{figure} 
-
-The neurons are assumed to be connected in a network. These connections can be represented by a $N \times N$ matrix, $W$, where each element $w_{ij}=w_{ij}$ is a weight corresponding to the strength of the connection between neuron $i$ and neuron $j$. A positive value for $w_{ij}$ corresponds to an excitatory synaptic connection, whereas a negative weight represents an inhibitory. A weight with value zero, means that there is no connection. 
-Typically these weights are considered as fixed. However, as the aim is here to study the synaptic plasticity, the weights are let to vary with time. Thus, there is a weight matrix for every time point, $\{W_t\}_{t=0}^{T}$. For a network consisting of three neurons, the weight matrix at time $t$ will look like
-
-\begin{equation*}
-W_t = 
-\begin{pmatrix}
-w_{11,t} & w_{12,t} & w_{13,t}\\
-w_{21,t} & w_{22,t} & w_{23,t}\\
-w_{31,t} & w_{32,t} & w_{33,t}\\
-\end{pmatrix} 
-\end{equation*}
-\\
-
-\textsc{Learning rules}\\
-The way in which the weights are changing is expected to follow some rules, called learning rules. The time development of the weights can be represented by
-
-\begin{equation}
-    W_{t+1} = W_t + l(W_t, S_{\leq t}) + \epsilon
-\end{equation}
-
-where $l$ is a learning rule depending on the current weights and the spike history. Experimental research have discovered some typical learning rules. One that is famous and quite simple is the spike-timing dependent plasticity (STDP). %https://www.nature.com/articles/nn0900_919 
-In this rule the weight between two neurons are updated according to the spike history of those two neurons only. There are other rules where a weight can be dependent on the spike history of the whole network. In the STDP rule the weight $w_{ij}$, going from neuron $i$ to neuron $j$, is increased whenever neuron $j$ spikes shortly after neuron $i$, and decreased if neuron $i$ spikes shortly after neuron $j$. The canonical STDP rule looks like (Linderman dissertation 2016)
-
-\begin{equation}
-    \begin{split}
-    l(w_{ij}(t), S_{\leq t}) = l_+(S_{<t}, A_+,\tau_+) - l_-(S_{<t}, A_-,\tau_-)\\ 
-    l_+(S_{\leq t}, A_+,\tau_+) = s_j(t) \sum_{t'=0}^{t} s_i(t') A_+ e^{(t-t')/\tau_+}\\ 
-    l_-(S_{\leq t}, A_-,\tau_-) = s_i(t) \sum_{t'=0}^{t} s_j(t') A_- e^{(t-t')/\tau_-}
-    \end{split}
-\end{equation}
-
-The parameters $\tau_+$ and $\tau_-$ affects the rage of time intervals in which the spiking contributes to the weight updates. Decreasing the $\tau$ value corresponds to shrinking the window for where spiking has significant impact on the plasticity. According to \cite{Song} experiments have shown that the value for $\tau_+$ is in the order of ten milliseconds. Some experiments suggest a value for $\tau_-$ of the same size, while other suggests a value somewhat larger. The parameters $A_+$ and $A_-$ scales the size of the updates, and corresponds to the maximum value of weight updates when $\delta t$ is small. For a "stable competitive synaptic modification", it is necessary that $A_-\tau_- > A_+\tau_+$, \cite{Song}. Therefore, if the two $\tau$-values are set equal, the value for $A_-$ has to be larger than $A_+$.
-
-The multiplicative STDP rule looks like
-
-\begin{equation}
-    l(w_{ij}(t), S_{\leq t}) = \Tilde{l}_+(S_{<t}, A_+,\tau_+)(w_{max} - w_{ij}(t))  - \Tilde{l}_-(S_{<t}, A_-,\tau_-)(w_{ij}(t) - w_{min})
-\end{equation}
-
-where $\Tilde{l}_{\pm} = min(l_{\pm},1)$, and $w_{max}$ and $w_{min}$ are upper and lower bounds for the weights. 
-
-\begin{itemize}
-    \item More on Hebbian learning
-    \item Use the papers I found on this. I have to show that I know something about what is done on this field
-\end{itemize}
 
 
 
