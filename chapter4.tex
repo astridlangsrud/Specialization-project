@@ -73,25 +73,24 @@ Inference will be made by the use of MCMC, so the interesting value to compute i
 \begin{equation}
 \label{eq:ratio}
 \begin{split}
-    log \frac{\big \{ \prod_{i,t} P(s_{it}|S_{t-1}, W_{t,new})\big \} \times exp(-\Gamma_{new} /2\sigma)}{\big \{ \prod_{i,t}  P(s_{it}|S_{t-1}, W_t) \big \} \times exp(-\Gamma /2\sigma)} \\
-    = \Big \{ \sum_{i,t} log( P(s_{it}|S_{t-1}, W_{t,new})) - log( P(s_{it}|S_{t-1}, W_t)) \Big \} -\Gamma_{new} /2\sigma +  \Gamma /2\sigma
+    \log (\alpha) = 
+    \log \frac{\big \{ \prod_{i,t} P(s_{it}|S_{t-1}, W_{t,new})\big \} \times exp(-\Gamma_{new} /2\sigma)}{\big \{ \prod_{i,t}  P(s_{it}|S_{t-1}, W_t) \big \} \times exp(-\Gamma /2\sigma)} \\
+    = \Big \{ \sum_{i,t} \log( P(s_{it}|S_{t-1}, W_{t,new})) - \log( P(s_{it}|S_{t-1}, W_t)) \Big \} -\Gamma_{new} /2\sigma +  \Gamma /2\sigma
 \end{split}
 \end{equation}
-
-For the MCMC procedure it will be set some initial guess for the weight trajectory $W_t^0$. For the test cases in this project, this will be done in two ways. In some cases the initial guess will be set equal to the actual weights used for the spike simulations. This will be to investigate whether the method is able to stay at the correct solution. In other cases the initial weight for the first time point $W_{t_1}^0$ will be specified and the rest of the initial weight trajectory will be drawn one and one from a normal distribution with mean equal to the previous time point. The proposal distribution will be a  multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration and no covariances between them. 
 
 
 \section{Method for test cases}
 \label{Method}
 
-In this project four test cases was performed on a simple system consisting of two neurons, 1 and 2, and a synaptic weight, $w_{12}$ directed from neuron 1 to neuron 2.
+In this project three test cases was performed on a simple system consisting of two neurons, 1 and 2, and a synaptic weight, $w_{12}$ directed from neuron 1 to neuron 2.
 
 \begin{figure}[h]
     \centering
     \includegraphics[scale=0.6]{Two_neurons_illustration.png}
 \end{figure}
 
-$N_1$ has for each time step a constant probability for spiking that depends on some background rate $b_1$. $N_2$ has spiking probability that depends on the spiking of $N_1$ in the previous time step through the linear predictor $b_2 + w_{21,t} \cdot s_{1,t-1}$. 
+Neuron 1 has a constant probability for spiking, according to a background parameter $b_1$. Neuron 2 has spiking probability that depends on the spiking of $N_1$ in the previous time step through the linear predictor $b_2 + w_{21,t} \cdot s_{1,t-1}$. The actual spiking rate is related to the linear predictor through a logit link, as described in section \ref{sec:Bernoulli}. The distributions of the stochastic variables $s_{i,t}$, representing the spiking in this system, are given by equation \ref{Eq:TestCase}.
 
 \begin{equation}
 \begin{split}
@@ -101,7 +100,7 @@ $N_1$ has for each time step a constant probability for spiking that depends on 
 \end{split}
 \end{equation}
 
-For the two first test cases the parameter values to be used are $b1 = 0.5$ and $b2 = 0$. This corresponds to a background firing rate of 0.62 and 0.5 for neuron 1 and 2 respectively. The value for the weight $w_{12}$ will be let to vary with time, but a typical size for it will be $w_{12}=0.7$. This gives a value of 1.2 for the linear predictor when neuron 1 spiked in the previous time step, and a corresponding firing rate of 0.77 for neuron 2. This is summarized in table \ref{table:parameters}.
+Typical parameter values to be used in the test cases are 0.5 and 1 for b1, and -1 and 0 for b2. The value for the weight $w_{12}$ will be let to vary with time, but a typical size for it will be $w_{12}=0.7$. To get a better intuition it is useful to translate this to the corresponding firing rates. Table \ref{table:parameters} shows the resulting firing rates for the different parameter values
 
 
 \begin{table}[!h]
@@ -110,52 +109,128 @@ For the two first test cases the parameter values to be used are $b1 = 0.5$ and 
 	\hline
 	Neuron & b & \pi_{s_{1,t-1}=0} & \pi_{s_{1,t-1}=1} \\
 	\hline\hline
+	1 & 0 & 0.5 & 0.5\\
+	\hline
 	1 & 0.5 & 0.62 & 0.62\\
+	\hline
+	2 & -1  & 0.27 & 0.43\\
 	\hline
 	2 & 0  & 0.5 & 0.77\\
 	\hline
 \end{tabular}
-\caption{Background parameter and spike rates for neuron 1 and neuron 2}
+\caption{Background parameter and corresponding spiking rates for neuron 1 and neuron 2}
 \label{table:parameters}
 \end{table}
 
+The purpose of all the test cases was to infer the underlying weights given the spike train data. Normalizes root mean square error (rnMSE) was used measure the goodness of the various test cases. This was calculated according to the following equation,
+
+\begin{equation}
+    rnMSE = \sqrt{\frac{\sum_t(w_{12,t}'-w_{12,t})^2}{\sum_t w_{12,t}^2}},
+\end{equation}
+
+where $w_{12,t}'$  are the inferred weights and $w_{12,t}$ are the generative weights.
+
 \subsection{CASE 1: Inferring constant weight with Newton method}
 
-The series of Bernoulli variables $\{s_{1t}\}_{t=1}^T$ and $\{s_{2t}\}_{t=1}^T$ were drawn according to equations \ref{Eq:TestCase}, with constant weight $w_{21,t} = w_{21} = 0.7$ and $T=1000$. The score and observed Fisher value for this example was calculated as 
+The series of Bernoulli variables $\{s_{1t}\}_{t=1}^T$ and $\{s_{2t}\}_{t=1}^T$ were drawn according to equations \ref{Eq:TestCase}, with constant weight $w_{21,t} = w_{21} = 0.7$ and $T=1000$. The score and Fisher value for this situation is 
 
 \begin{equation}
 \begin{split}
-    s(w_{12}) = \sum_{t=2}^{T} s_{1, t-1} (s_{2,t}-\pi_{2,t}), \\
+    score(w_{12}) = \sum_{t=2}^{T} s_{1, t-1} (s_{2,t}-\pi_{2,t}), \\
     H(w_{12}) = \sum_{t=2}^T s_{1, t-1}^2 \pi_t(1-\pi_t) = \sum_{t=1}^T s_{1, t-1} \pi_t(1-\pi_t).
 \end{split}
 \end{equation}
 
-The last equivalence works since $s_{1,t}$ only can take values 1 or 0. The initial guess was set to $w_{12} = 1$. Newton iterations, as given by equation \ref{eq:Newton}, were performed until convergence.\\ 
+The last equivalence is valid since $s_{1,t}$ only can take values 1 or 0. 
+
+An initial guess was set to $w_{12} = 1$. Newton iterations, as given by equation \ref{eq:Newton}, were performed until convergence.\\ 
 
 \subsection{CASE 2: Inferring dynamic weights with Metropolis-Hastings}
-Now the weights were let to vary, and the aim was to infer the vector $\{w_{12,t}\}_{t=1}^T$ of weights for each time step. In this test case 10 time steps was used, namely $T=10$. The weight corresponding to $t = 1$ is not interesting, as no spikes are generated by it, so there are 9 weights to infer.
+Now the weights were let to vary, and the aim was to infer the vector ${\bf w_{12}}$ of length T, of weights for each time step. In this test case 10 time steps was used, $T=10$. In the first time step, there is no "previous step" that can be used to evaluate the spike rate of neuron 2. Therefore, in this time step the only thing happening is generating the variable $s_{1,t=1}$. This means that there are 9 weights to infer, corresponding to $t=2,...,10$. From $t=2$, spikes for both neurons are generated, where the spike rate for neuron 2 is computed according to value of the linear predictor. 
 
-To begin with a "true" weight trajectory to be used for the spike simulations was specified. The weight at $t=1$ was set to 0.7, and the remaining weights were drawn as
+Before simulation the neuron spiking, the generative weight trajectory was specified. The weight at $t=2$ was set to 0.7, and the remaining weights were drawn as
 
 \begin{equation}
     w_{t} = w_{t-1} + |n(0,0.001)|,
 \end{equation}
 
-where $|n(0,0.001)|$ is the absolute value of a normal distributed parameter with zero mean and variance equal to $0.001$. In reality the number of time steps is much larger, and changing much slower. However, it is chosen this way to easily gain insight into the issue of inferring varying weights. Spike trains for the two neurons were then drawn using the weight trajectory. These spike trains were drawn various number of times for the same weight trajectory, for comparing the goodness of the algorithm for different data sizes. In other words, for one weight trajectory $\{w_{12,t}\}_{t=1}^T$ it was simulated spikes
-$\{\{s_{1,i,t}\}_{t=1}^T\}_{i=1}^I$ and $\{\{s_{2,i,t}\}_{t=1}^T\}_{i=1}^I$ for $I \in \{1,10,100,1000,10000 \}$.
+where $|n(0,0.001)|$ is the absolute value of a normal distributed parameter with zero mean and variance equal to $0.001$. Figure \ref{fig:Generative} shows an example of how a typical generative weight trajectory for this test case looks like. 
 
-To infer the weights from the data, the Metropolis-Hastings algorithm was used.
+\begin{figure}
+\caption{Example generative weight trajectory in case 2}
+\label{fig:Generative}
+    \centering
+    \includegraphics[scale=0.8]{fig/UL.png}
+\end{figure}
 
-The value for the log ratio, as given by equation \ref{eq:ratio}, is now given by
+
+In reality the number of time steps is much larger, and changing much slower. However, this is done as a simple way to investigate whether and how well the algorithm can infer time varying weights. 
+
+Spike trains for the two neurons were again drawn according to equation \ref{Eq:TestCase}, this time using the generated time varying weights. These spike trains were drawn various number of times for the same weight trajectory, for comparing the goodness of the algorithm for different amounts of data. In other words, for one weight trajectory $\{w_{12,t}\}_{t=1}^T$ it was simulated spike trains
+$\{\{s_{1,t,i}\}_{t=1}^T\}_{i=1}^I$ and $\{\{s_{2,t,i}\}_{t=1}^T\}_{i=1}^I$ with $I \in \{1,10,100,1000,10000 \}$.
+
+To infer the weights from the data, the Metropolis-Hastings algorithm was used. In the algorithm the equations given by ?? needs to be computed in every iteration. For this two neuron system, these equations are calculated as
 
 \begin{equation}
-    lr = \sum_i \sum_t s_{2,t,i}(b_2 w_{12,t}*s_{1,t-1,i}) - log(1 + exp(b_2 w_{12,t} * s_{1,t-1,i}))
+\begin{split}
+    l({\bf w_{12}}) = \sum_i \sum_t s_{2,t,i}(b_2 w_{12,t}*s_{1,t-1,i}) - log(1 + exp(b_2 w_{12,t} * s_{1,t-1,i})) \\
+    \Gamma({\bf w_{12}}) = \sum_{t=2}^T (w_{12,t} - w_ {12,t-1})^2\\
+    \log ( \alpha) = l({\bf w_{12}}_{new}) - l({\bf w_{12}}) - \Gamma({\bf w_{12}}_{new})/2\sigma + \Gamma({\bf w_{12}})/2\sigma.
+\end{split}
 \end{equation}
 
+$\sigma$ was equal to $0.0001$. The proposal distribution used was a multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration, variances equal to $0.0001$ and zero covariances. 
+The Metropolis-Hastings procedure for this case is summarized in algorithm \ref{alg:M-H}.
 
-\\
+\begin{algorithm}
+\caption{}\label{alg:M-H}
+\begin{algorithmic}
+\State Create empty list $[]$ for weight sample
+\State Set start guess ${\bf w_{12}} = {\bf w_{12}}^{(guess)}$
+\For {$iteration=1,2,\ldots$}
+\State Draw ${\bf w_{12}}_{new}$ from proposal distribution
+\State Compute $log(\alpha)$
+\State Compute $\alpha = exp(log(\alpha))$
+\If {$\alpha > 1$}
+\State ${\bf w_{12}} = {\bf w_{12}}_{new}$
+\Else 
+\If {random.uniform(0,1) $<\alpha$}
+\State ${\bf w_{12}} = {\bf w_{12}}_{new}$
+\EndIf
+\EndIf
+\State Add ${\bf w_{12}}$ to sample list
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Two variants of this procedure was performed. One where the initial guess was equal to the generative weights, and one where the initial guess was a random walk around 1. 
 
 \subsection{CASE 3: Weights generated by learning rule}
+In reality it is not possible to perform multiple spiking replicates for the same weight trajectory. If the synaptic connections are changing according to learning rules, as presented in section \ref{sec:LR}, the weight updates are dependent on the spiking as time goes by. Since the spiking is a random process, it cannot be reproduced properly. Therefore, we have to rely on only one spike train per neuron, for one weight trajectory. However, in reality the time series is longer and the weights are changing slower and are strongly correlated in time. 
+
+So in this test case weights and the spikes were generated simultaneously, by means of the STDP learning rule, given by equation \ref{eq:STDP}. The parameter values used for the learning rule were the same as the ones suggested in \cite{Song}, namely $\tau_{\pm} = 20 ms$, $A_+ = 0.005$ and $A_- = 1.05 \times A_+$. The learning rule with these parameters is illustrated in figure \ref{fig:LR}.
+
+\begin{figure}[hbt!]
+\caption{STDP learning rule}
+\label{fig:LR}
+    \centering
+    \includegraphics[scale=0.8]{fig/Learning_rule2.png}
+\end{figure}
+
+This time $T$ and the spiking rates was set to illustrate realistic time relations. In \cite{Linderman} they use a baseline firing rate with mean 20Hz. To roughly have the same firing level the model was set to have 40 time stamps for representing one second, and the firing rate of the two neurons around one half. 
+
+First the procedure in algorithm \ref{alg:M-H} was performed with 10 seconds (400 time stamps). The weight trajectory drawn for this is plotted in figure \ref{fig:w_STDP}. 
+
+
+\begin{figure}[hbt!]
+\caption{Generative weights drawn according to the STDP rule and the generated spikes}
+\label{fig:w_STDP}
+    \centering
+    \includegraphics[scale=0.8]{fig/LR_underllying.png}
+\end{figure}
+
+An easy way to simplify the problem and to utilize the time correlations is to specify equally sized time bins and assume that the weight is constant within each time bin. Since we have restricted the degrees of freedom this can only give a rough estimate of the weights. However, this can still be useful to investigate whether we can characterize the learning trends with only one spike trajectory. The learning rule itself has much fewer parameters than the number of weights. 
+
 
 
 \section{Precalculations}

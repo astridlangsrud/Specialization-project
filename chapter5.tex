@@ -2,9 +2,10 @@
 
 \chapter{Results}
 
-This chapter presents the results of the test cases described in the previous chapter.
+All the test cases presented in section \ref{Method} were performed. The results from this are presented in this chapter.
+%This chapter presents the results of the test cases described in the previous chapter.
 
-\section{CASE 1: Inferring constant weights with Newton method}
+\section{CASE 1}
 Figure \ref{fig:Newton} illustrates the log-likelihood function, and the points for the initial guess and the two first iterations in the Newton method.
 
 
@@ -17,88 +18,101 @@ Figure \ref{fig:Newton} illustrates the log-likelihood function, and the points 
 
 The method saturates after two iterations. 
 
-\section{Inferring dynamic weights}
-
-\textsc{Starting iterations from true weights}\\
-For the first case the true weight trajectory is plotted in the following figure. 
+\section{CASE 2}
+ 
+The method was performed with various number of spike trains, $ \{1,10,100,1000,10000 \}$, and 3000 iterations of the algorithm was run for every instance. Figure \ref{fig:Case2_1} shows an example of normalized root mean squared errors over iterations for the different number of trials. Here the generative weight trajectory was the same for all the instances, and the initial guess was set to be the true weights. 
 
 
 \begin{figure}[hbt!]
+\caption{Normalized root MSE over iterations for various number of trials. One example of the method in case 2 when starting from the correct weights}
+\label{fig:Case2_1}
     \centering
-    \includegraphics[scale=0.8]{Underlying.png}
+    \includegraphics[scale=0.75]{MSE3.png}
 \end{figure}
 
-The following plot shows the normalized mean squared error when using different number of trials, starting the iterations from the correct weights. The variance used in the proposal and prior distribution is equal to $0.0001$. The number of iterations was 3000.
+This procedure was repeated 100 times for each number of trials. The underlying weights were now drawn new for each replicate. Figure \ref{fig:case2_avg} shows the mean of the rnMSE values at each iteration, with variance bars around it. 
 
 \begin{figure}[hbt!]
+\caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to the true weights.}
+\label{fig:case2_avg}
     \centering
-    \includegraphics[scale=0.8]{MSE3.png}
+    \includegraphics[scale=0.75]{Mean_plot_std.png}
 \end{figure}
 
-The same was done 100 times for each number of trials. The underlying weights were drawn new for each replicate. The following plot shows the mean of the MSE values at each iteration, with variance bars around it. 
+%\begin{figure}[hbt!]
+    %\centering
+    %\includegraphics[scale=0.8]{Std_every100.png}
+%\end{figure}
 
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[scale=0.8]{Mean_plot_std.png}
-\end{figure}
 
-The standard deviation bars were 
+It is also interesting to see how well the algorithm manages to find the actual weights when the iterations begins from somewhere else. Now the initial guess for the MCMC iterations is set to be a random walk around 1. Figure \ref{fig:MSE2} shows the corresponding mean rnMSE of 100 replicates for each number of trials. 
 
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[scale=0.8]{Std_every100.png}
-\end{figure}
-
-\textsc{Starting weight trajectory different from true weights}
-It is also interesting to see how well the algorithm manages to find the actual weights when the iterations begins from somewhere else. Now the initial guess for the MCMC iterations is set to be a random walk around 1.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[scale=0.8]{Start_it_1000.png}
-\end{figure}
+%\begin{figure}[hbt!]
+    %\centering
+    %\includegraphics[scale=0.8]{Start_it_1000.png}
+%\end{figure}
 
 
 \begin{figure}[hbt!]
+\caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to random walk around 1}
+\label{fig:MSE2}
     \centering
     \includegraphics[scale=0.8]{MSE_starting_away.png}
 \end{figure}
 
-Figure \ref{w_trajectory_1000} and  shows how the weight trajectory develops over the iterations for 100 and 1000  (Note to myself: appendix? Since these are weight trajectories for single iterations their look is quite random. Maybe change to average weight trajectory of 100 or something?)
+To visualize what is happening during the course of the iterations figure \ref{fig:trajectories} displays the how the estimated weights after 100,200,300,400,500 and 1000 iterations looks like, for initial guess a random walk around 1. 
+
+
+
+\begin{figure}[hbt!]
+\caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 100, 200, 300, 400, 500 and 1000 iterations (green)}
+\label{fig:trajectories}
+    \centering
+    \includegraphics[scale=0.4]{fig/10000_100.png}
+    \includegraphics[scale = 0.4]{fig/10000_200.png}\\
+    \includegraphics[scale = 0.4]{fig/10000_300.png}
+    \includegraphics[scale = 0.4]{fig/10000_400.png}\\
+    \includegraphics[scale = 0.4]{fig/10000_500.png}
+    \includegraphics[scale = 0.4]{fig/10000_1000.png}
+\end{figure}
+
+\newpage
+
+%\begin{figure}[hbt!]
+    %\centering
+    %\includegraphics[scale=0.3]{fig/Start_it_100.png}
+    %\includegraphics[scale = 0.3]{fig/1000_it_100.png}
+    %\includegraphics[scale = 0.3]{fig/2000_it_100.png}\\
+    %\includegraphics[scale = 0.3]{fig/3000_it_100.png}
+    %\includegraphics[scale = 0.3]{fig/4000_it_100.png}
+    %\includegraphics[scale = 0.3]{fig/5000_it_100.png}
+    %\caption{Development of weight trajectory over iterations for 100 trials. 0, 1000, 2000, 3000, 4000 and 5000 iterations}
+    %\label{w_trajectory_1000}
+%\end{figure}
+
+\section{CASE 3}
+First the variant where the weight for all time steps are drawn individually were performed. This was tried with various values for the variance in the prior and proposal distribution. For a low value of the prior variance compared to the proposal variance, no new weight trajectories were accepted in the algorithm, so the estimation just stays where it starts. If the relative variance is large enough for weight trajectories to be accepted, it does not move towards the correct solution, and the error increases with iteration. One example of the true, initial and inferred weights after 3000 iterations is shown in figure \ref{fig:400_weights}. 
+
+
+\begin{figure}
+    \caption{True weights (orange), initial guess (green) and inferred weights (blue) after 3000 iterations}
+    \label{fig:400_weights}
+    \centering
+    \includegraphics[scale=0.8]{fig/{Result_0.08}.png}
+\end{figure}
+
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[scale=0.3]{fig/Start_it_1000.png}
-    \includegraphics[scale = 0.3]{fig/1000_it_1000.png}
-    \includegraphics[scale = 0.3]{fig/2000_it_1000.png}\\
-    \includegraphics[scale = 0.3]{fig/3000_it_1000.png}
-    \includegraphics[scale = 0.3]{fig/4000_it_1000.png}
-    \includegraphics[scale = 0.3]{fig/5000_it_1000.png}
-    \caption{Development of weight trajectory over iterations for 1000 trials. 0, 1000, 2000, 3000, 4000 and 5000 iterations}
-    \label{w_trajectory_1000}
+    \includegraphics[scale=0.45]{fig/{10bins_0.01_0.01_s}.png}
+    \includegraphics[scale=0.45]{fig/{10bins_0.005_0.005_s}.png}\\
+    \includegraphics[scale=0.45]{fig/{10bins_0.0005_0.0005}.png}
 \end{figure}
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[scale=0.3]{fig/Start_it_100.png}
-    \includegraphics[scale = 0.3]{fig/1000_it_100.png}
-    \includegraphics[scale = 0.3]{fig/2000_it_100.png}\\
-    \includegraphics[scale = 0.3]{fig/3000_it_100.png}
-    \includegraphics[scale = 0.3]{fig/4000_it_100.png}
-    \includegraphics[scale = 0.3]{fig/5000_it_100.png}
-    \caption{Development of weight trajectory over iterations for 100 trials. 0, 1000, 2000, 3000, 4000 and 5000 iterations}
-    \label{w_trajectory_1000}
+    \includegraphics[scale=0.8]{fig/MSE_bins.png}
 \end{figure}
 
-\section{Weights generated by learning rule}
-
-\begin{itemize}
-    \item Describe test case and how I generated the weights
-    \item Figures with results. Trying different variances for the prior ect
-\end{itemize}
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[scale=0.8]{Learning_rule.png}
-\end{figure}
 
 \cleardoublepage
