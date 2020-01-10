@@ -2,22 +2,23 @@
 
 \chapter{Background and theory}
 
-The goal is to study the dynamics of synaptic connections based on the data material from the lab experiments. Since we know that relative spiking of the presynaptic and postsynaptic neuron affects the synaptic connection, it is relevant to study the changing of neuronal spike rates, in connection to the spiking of the surrounding neurons. For one neuron at one time step, the situation of spiking or not spiking can be considered as a Bernoulli process, with some time dependent spiking rate $\lambda (t)$. This spiking rate can be expressed function of the spike history of the neuron itself and of the other neurons. This can be modelled using a Generalized Linear Model (GLM). The statistical theory for this i described in section \ref{sec:stats}. There are involved many parameters in this model, so inference will be made by use of the MCMC algorithm Metropolis-Hastings. The framework from this is presented in section \ref{Bayesian}. 
+The goal is to infer the dynamics of synaptic connections based on the data material from the lab experiments. Since we know that relative spiking of the presynaptic and postsynaptic neuron affects the synaptic connection, it is relevant to study the changing of neuronal spike rates in relation to the spiking of the surrounding neurons. For one neuron at one time step, the situation of spiking or not spiking can be considered as a Bernoulli process, with some time dependent spiking rate $\lambda (t)$. The spiking rate can be expressed function of the spike history of the neuron itself and of the other neurons, which can be modelled using a Generalized Linear Model (GLM). Statistical theory for this is described in section \ref{sec:stats}. Section \ref{Intro_GLM} provides a general introduction to the GLM framework and presents how it looks like for a Bernoulli distribution. In section \ref{sec:Inference} it is explained how inference in GLMs can be made according to the maximum likelihood and gradient based methods. 
 
-...
+Gradient based methods with maximum likelihood works well if the problem is convex and enough information is stored in the data. If we have a system with stationary connectivity, this approach is suitable. On the other hand, for a network of N neurons with dynamical connections over T time steps, the number of parameters is of $O(N^2 \times T)$, whereas the number of data points is of $O(N \times T)$. This means that the system with dynamical connections is undersampled for the technique presented in section \ref{sec:Inference}. However, there are big correlations in time, and we have hypotheses on the connectivity dynamics from the learning rules. Therefore, taking advantage of the prior knowledge with a Bayesian approach is a natural choice. A description of the Bayesian framework is given in section \ref{BayesianFW}. Including prior distributions typically do not preserve the convexity of the problem, so we have to resort to Monte-Carlo techniques to characterize the posterior. The Metropolis-Hastings algorithm is chosen as a starting point. The background theory for this is provided in section \ref{Metropolis}.
 
 \section{Generalized linear models}
 \label{sec:stats}
 
 \subsection{Introduction}
 \label{Intro_GLM}
-Consider the data set $ \{y_{i}, \bold{x_{i}}\}_{i=1}^{n} $ of $i$ sampling units, where $y_i$ represents an observed response value and $ \bold{x_i}$ are the corresponding explanatory variables. In ordinary linear regression the relationship between the dependent and independent variables is modeled by the linear function:
+Consider the data set $ \{y_{i}, \bold{x_{i}}\}_{i=1}^{n} $ of $i$ sampling units, where $y_i$ represents an observed response value and $ \bold{x_i}$ are the corresponding explanatory variables. In general linear regression the relationship between the dependent and independent variables is modeled by the linear function:
 
 \begin{equation}
+\label{eq:general}
     \textbf{y} = \bm{\beta}\bf X + \bm{ \epsilon}
 \end{equation}
 
-where $\bm{\beta}$ is a vector of regression coefficients, and $\bm{ \epsilon}$ represents the error terms. The errors, $\epsilon_{i}$, are considered independent and identically distributed as $N(0, \sigma^{2})$.
+where \textbf{y} is a vector of response variables, \textbf{X} a matrix of explanatory variables, $\bm{\beta}$ is a vector of regression coefficients, and $\bm{ \epsilon}$ represents the error terms. The errors, $\epsilon_{i}$, are considered independent and identically distributed as $N(0, \sigma^{2})$.
 
 Even though this model is useful for many situations, it has some limitations. For example, if the range of $x_{i}$ is $(-\infty, \infty)$, letting it approach infinity while everything else is kept constant makes also $y_i$ approach infinity (or minus infinity if $\beta_i$ is negative). If then the range of $y$ should be restricted, the linear model is inappropriate. 
 
@@ -69,7 +70,37 @@ Often the link function used is the \textit{canonical link function}. This refer
 \theta_i = g(\mu_i)
 \end{equation}
 
+The general linear model, given by equation \ref{eq:general}, is one special case of GLMs. It can be defined in the GLM framework, by specifying $y_i$ as a normal distributed variable with mean $\mu_i$, and having the identity link function. That is
 
+\begin{equation}
+\begin{split}
+y \sim N(\mu_i, \sigma^2) \\
+\mu_i = \eta_i = \bf x_i^T \bm{ \beta}
+\end{split}
+\end{equation}
+
+
+In a Bernoulli process the response variable, $y_i$, takes the value 1 with a probability $\mu_i$, and 0 with the probability $1-\mu_i$. The corresponding probability density function is,
+
+\begin{equation}
+\begin{split}
+    f(y_i|\mu_i) = Ber(\mu_i) = \mu_i^{y_i}(1-\mu_i)^{1-y_i}\\
+    = \text{exp} ( y_i  \text{log}\big(\frac{\mu_i}{1-\mu_i}\big) + \text{log}(1-\mu_i)),
+\end{split}
+\end{equation}
+
+where the bottom line shows that it corresponds to an exponential family. Hence, it can be modelled with GLM. The expected value of $y_i$ is calculated as
+
+A probability parameter can only take value in $[0,1]$. Thus the inverse of the link function, the \textit{response function}, have to be a mapping from the real line to $[0,1]$. The most common is the \textit{logit} link function, which is the canonical link in this case,
+
+\begin{equation}
+    \eta_i = g(\mu_i) = ln(\frac{\mu_i}{1-\mu_i}) \Leftrightarrow 
+    \mu_i = h(\eta_i) = \frac{exp(\eta_i)}{1+exp(\eta_i)}
+\end{equation}
+
+
+\subsection{Inference}
+\label{sec:Inference}
 
 Typically the $\beta$-values in the linear predictor are unknown, and the goal is to estimate these. Since one has a set of input and response variables, one wants to find the $\beta$-values that fits best to this data. This is done by searching for the values that makes the observed data most likely, namely those that maximizes the likelihood:
 
@@ -77,36 +108,22 @@ Typically the $\beta$-values in the linear predictor are unknown, and the goal i
     L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta})
 \end{equation}
 
-\subsection{Bernoulli GLM and inference}
-\label{sec:Bernoulli}
-In a Bernoulli process the response variable, $y_i$, takes the value 1 with a probability $\pi_i$, and 0 with the probability $1-\pi_i$. In Bernoulli regression the response variable have the Bernoulli distribution
 
-\begin{equation}
-\begin{split}
-    f(y_i|\pi_i) = Ber(\pi_i) = \pi_i^{y_i}(1-\pi_i)^{1-y_i}\\
-    = \text{exp} ( y_i  \text{log}\big(\frac{\pi_i}{1-\pi_i}\big) + \text{log}(1-\pi_i))
-\end{split}
-\end{equation}
 
-A probability parameter can only take value in $[0,1]$. Thus the inverse of the link function, the \textit{response function}, have to be a mapping from the real line to $[0,1]$. The most common is the \textit{logit} link function, which is the canonical link in this case,
 
-\begin{equation}
-    \eta_i = g(\pi_i) = ln(\frac{\pi_i}{1-\pi_i}) \Leftrightarrow 
-    \pi_i = \mu_i = h(\eta_i) = \frac{exp(\eta_i)}{1+exp(\eta_i)}
-\end{equation}
 
 For doing inference, the likelihood function and log-likelihood function is useful. Given a collection of n observations $\{(y_1, {\bf x_1}), (y_2, {\bf x_2}),...,(y_n, {\bf x_n})\}$ from a Bernoulli process, the likelihood function is given as
 
 \begin{equation}
-    L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta}) = \prod_{i=1}^{n} \pi_i^{y_i}(1-\pi_i)^{1-y_i}
+    L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta}) = \prod_{i=1}^{n} \mu_i^{y_i}(1-\mu_i)^{1-y_i}
 \end{equation}
 
 The loglikelihood can then be derived as,
 
 \begin{equation}
 \begin{split}
-    l(\bm{\beta}) = log \prod_{i=1}^{n} (\pi_i^{y_i}(1-\pi_i)^{1-y_i})  =
-    \sum_{i=1}^n log (\pi_i^{y_i}(1-\pi_i)^{1-y_i})\\ =  \sum_{i=1}^{n} y_i log(\frac{\pi_i}{1-\pi_i}) + log(1-\pi_i)
+    l(\bm{\beta}) = log \prod_{i=1}^{n} (\mu_i^{y_i}(1-\mu_i)^{1-y_i})  =
+    \sum_{i=1}^n log (\mu_i^{y_i}(1-\mu_i)^{1-y_i})\\ =  \sum_{i=1}^{n} y_i log(\frac{\mu_i}{1-\mu_i}) + log(1-\mu_i)
 \end{split}
 \end{equation}
 
@@ -167,8 +184,10 @@ Hence, the Newton method for estimating $\beta$, is the iteration scheme
 \section{Inference with MCMC}
 \label{Bayesian}
 
+In the problem of modeling time varying weights in a neural network, the parameter space is very big. For every time step $t$ there is an unknown $N \times N$ weight matrix, that we want to do inference on, but only $N$ data values. So with $N^2$ unknowns, the resulting problem is not convex, and cannot be solved with the gradient ascent method. However, there are strong correlations and regulations in the picture. It is possible to take advantage of this prior knowledge by using Markov chain Monte Carlo (MCMC) techniques. Section \ref{BayesianFW} gives a brief description of the Bayesian framework, which is a basis for MCMC. In the section \ref{Metropolis} one of the most general MCMC algorithms, the  Metropolis-Hastings algorithm, will be described.
+
 \subsection{Bayesian framework}
-In the problem of modeling time varying weights in a neural network, the parameter space is very big. For every time step $t$ there is an unknown $N \times N$ weight matrix, that we want to do inference on, but only $N$ data values. So with $N^2$ unknowns, the resulting problem is not convex, and cannot be solved with the gradient ascent method. However, there are strong correlations and regulations in the picture. It is possible to take advantage of this prior knowledge by using Markov chain Monte Carlo (MCMC) techniques. Section \ref{Bayesian} gives a brief description of the Bayesian framework, which is a basis for MCMC. In the section \ref{Metropolis} one of the most general MCMC algorithms, the  Metropolis-Hastings algorithm, will be described.
+\label{BayesianFW}
 
 Given some data from a parametric distribution $P(x;\theta)$ where the parameter, $\theta$, is unknown, the posterior distribution of the parameter given the data can be expressed according to Bayes theorem, as follows.
 

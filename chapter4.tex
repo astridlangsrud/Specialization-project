@@ -2,7 +2,7 @@
 
 \chapter{Method and calculations}
 
-Simulated experiments with two neurons and one directed synaptic connection was performed for test purposes. Various approaches for inferring time varying weighs was tried and their limitations were investigated.  the ability of the method to infer time varying weights and to investigate its limitations. In section \ref{Method} the method of the test experiments is described in detail. Section \ref{Precalc} presents some calculations based on probability theory to show how well we can expect the method to perform.
+Now we move to the modeling of neurons and synapses. In section \ref{set_up} the different elements included in the model are introduced and the most important equations from GLM and MCMC are defined for this system. Simulated experiments with two neurons and one directed synaptic connection was performed for test purposes. Various approaches for inferring time varying weighs were tried and their limitations were investigated. In section \ref{Method} the methods of the test experiments are described in detail. Section \ref{Precalc} presents some calculations based on probability theory to say something about how well the method is expected to perform.
 
 \section{Model}
 \label{set_up}
@@ -20,9 +20,11 @@ For the later calculations it is practical to represent the spike data in anothe
     S_{t} = \{\{s_{i,t_1}, ,...,s_{i,t-1},s_{it}\}\}_{i=0}^{N} \quad s_{i,t_k} \in {0,1}
 \end{equation}
 
-This is illustrated in the following figure, where the top array is a spike train, and the bottom array is the corresponding binary values for the time bins
+This is illustrated in figure \ref{fig:spike_train}, where the top array is a spike train, and the bottom array is the corresponding binary values for the time bins.
 
 \begin{figure}[h]
+\caption{Spike train and corresponding binary numbering of the time bins.}
+\label{fig:spike_train}
     \centering
     \includegraphics[scale=0.7]{Sp_t.png}
 \end{figure} 
@@ -179,7 +181,7 @@ To infer the weights from the data, the Metropolis-Hastings algorithm was used. 
 \end{split}
 \end{equation}
 
-$\sigma$ was equal to $0.0001$. The proposal distribution used was a multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration, variances equal to $0.0001$ and zero covariances. 
+$\sigma$ will be referred to as the \textit{prior variance}. In this case the  prior variance was equal to $0.0001$. The proposal distribution used was a multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration, variances equal to $0.0001$ and zero covariances. 
 The Metropolis-Hastings procedure for this case is summarized in algorithm \ref{alg:M-H}.
 
 \begin{algorithm}
