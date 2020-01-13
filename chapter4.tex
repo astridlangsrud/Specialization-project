@@ -1,6 +1,6 @@
 %===================================== CHAP 4 =================================
 
-\chapter{Method and calculations}
+\chapter{Methods}
 
 Now we move to the modeling of neurons and synapses. In section \ref{set_up} the different elements included in the model are introduced and the most important equations from GLM and MCMC are defined for this system. Simulated experiments with two neurons and one directed synaptic connection was performed for test purposes. Various approaches for inferring time varying weighs were tried and their limitations were investigated. In section \ref{Method} the methods of the test experiments are described in detail. Section \ref{Precalc} presents some calculations based on probability theory to say something about how well the method is expected to perform.
 
@@ -8,63 +8,83 @@ Now we move to the modeling of neurons and synapses. In section \ref{set_up} the
 \label{set_up}
 
 \subsection{Framework}
-For the later calculations it is practical to represent the spike data in another format. Define
+The data material is the time points for action potentials in time interval $[0,K]$ for the N neurons, as given by equation \ref{eq:AP}. Let the time line be divided into T equally sized bins, and number these bins,
 
 \begin{equation}
-    t \in \{t_1, t_2, ..., t_n\} 
+    t \in \{1, 2, ..., T\}.
 \end{equation}
 
- where $\{t_1, t_2, ..., t_n\}$ is \ a sequence of equally spaced time steps in [0,T], where $t_{k}-t_{k-1} = t_1$. Also let $s_{i,t} \in \{0,1\}$ be a variable taking value 1 if neuron $i$ spikes in the time bin $(t_{k-1}, t_{k})$, and 0 otherwise. To keep as much information as possible, it is preferable to set the time intervals so small that there is very low probability that the neuron will spike more than once in the intervals. Then, at time $t$ we have a collection of $N$ sequences
-
-\begin{equation}
-    S_{t} = \{\{s_{i,t_1}, ,...,s_{i,t-1},s_{it}\}\}_{i=0}^{N} \quad s_{i,t_k} \in {0,1}
-\end{equation}
-
-This is illustrated in figure \ref{fig:spike_train}, where the top array is a spike train, and the bottom array is the corresponding binary values for the time bins.
+Also, let $s_{i}(t) \in \{0,1\}$ be a binary variable taking value 1 if neuron $i$ fires at least once in the time bin $t$, and 0 otherwise. This is illustrated in figure \ref{fig:spike_train}, where the top array is a spike train, and the bottom array is the corresponding binary values for the time bins.
 
 \begin{figure}[h]
-\caption{Spike train and corresponding binary numbering of the time bins.}
+\caption{Upper time line illustrates the time points, $a_x$, for action potentials. Bottom time line illustrates the corresponding binary value for the defined time bins.}
 \label{fig:spike_train}
     \centering
     \includegraphics[scale=0.7]{Sp_t.png}
 \end{figure} 
 
-The neurons are assumed to be connected in a network. These connections can be represented by a $N \times N$ matrix, $W$, where each element $w_{ij}=w_{ij}$ is a weight corresponding to the strength of the connection between neuron $i$ and neuron $j$. A positive value for $w_{ij}$ corresponds to an excitatory synaptic connection, whereas a negative weight represents an inhibitory. A weight with value zero, means that there is no connection. 
-Typically these weights are considered as fixed. However, as the aim is here to study the synaptic plasticity, the weights are let to vary with time. Thus, there is a weight matrix for every time point, $\{W_t\}_{t=0}^{T}$. For a network consisting of three neurons, the weight matrix at time $t$ will look like
-
-\begin{equation*}
-W_t = 
-\begin{pmatrix}
-w_{11,t} & w_{12,t} & w_{13,t}\\
-w_{21,t} & w_{22,t} & w_{23,t}\\
-w_{31,t} & w_{32,t} & w_{33,t}\\
-\end{pmatrix} 
-\end{equation*}
-\\
-
-\subsection{GLM and MCMC for this case...}
-This section will give an outline of how the Bernoulli GLM and MCMC sampling can be used to make inference on the synaptic weights of neurons in a network. The variable $s_i(t)$ for a neuron $i$ at time $t$, as defined in section ??, can be considered as a stochastic variable from a Bernoulli process. The probability parameter, $\pi_{it}$, represents the probability that neuron $i$ will fire an action potential in time bin $(t,t+1)$. The linear predictor, $\eta_{it}$ consists of the spike history of the neurons, scaled by the synaptic weights from them to neuron $i$, in addition to a background firing rat for neuron $i$. As for a Bernoulli GLM the parameter and the linear predictor is connected through a logit link. This can be expressed mathematically as
+The variable $s_{i}(t)$ can be considered a stochastic variable from a Bernoulli process. It has expected value $\lambda (t)$, also referred to as \textit{spike rate}, that can be understood as the probability that the neuron will fire in the time bin $t$. This depends on some linear predictor, $\eta_i(t)$ through a logit link function. 
 
 \begin{equation}
 \begin{split}
-    P(s_{it}|S_{t-1}, W_t) =  Ber(\pi_{it}) = \pi_{it}^{s_it}(1-\pi_{it})^{1-s_{it}}, \\ \pi_{it} = h(\eta_{it})= \frac{exp(\eta_{it})}{1+exp(\eta_{it})},\\
-    \eta_{it} = \Big (\sum_{j=0}^{N}\sum_{t'=0}^{t'=t-1} w_{ji,t'}s_{jt'} \Big) + b_i, \\
-    P(S_t|W_t) = \prod_{i,t} P(s_{it}|S_{t-1}, W_t).
+P(s_i(t)|\lambda_i(t)) =  Ber(\lambda_i(t)) = \lambda_i(t)^{s_i(t)}(1-\lambda_i(t))^{1-s_i(t)}, \\ \lambda_i(t) = h(\eta_i(t))= \frac{exp(\eta_i(t))}{1+exp(\eta_i(t))}.
 \end{split}
 \end{equation}
 
-This corresponds to the likelihood of the observed spiking, given some weights. The prior will be dependent on the learning rule later, but for this projects it is set to be a restriction on how much a weight is allowed to vary from one time step to another, namely
+The linear predictor is a linear combination of the states of the neurons at the previous time step and a background noise, $b_i$. This is expressed as,
 
 \begin{equation}
-    \Gamma = \sum_{j=0}^{N} \sum_{t=0}^{T-1} (w_{ji,t+1}-w_{ji,t})^2.
+    \eta_i(t) = \Big (\sum_{j=0}^{N}  w_{ji}(t)s_j(t-1) \Big) + b_i.
 \end{equation}
 
-The prior distribution is a Gauss distribution of $\Gamma$ with zero mean and some variance $\sigma$. Hence, we have the following expression for the posterior distribution for the weights
+Here $w_{ji}$ is a \textit{weight} between neuron $j$ and neuron $i$, and represents the strength of the connection between the two neurons. The contribution to the linear predictor for $\lambda_i(t)$ from neuron $j$ is $w_{ji}s_j(t-1)$. A positive value for $w_{ji}$ corresponds to an excitatory synaptic connection, whereas a negative weight represents an inhibitory one. A weight with value zero, means that there is no connection. Typically these weights are considered as fixed. However, as the aim is here to study the synaptic plasticity, the weights are let to vary with time. Therefore, we set $w_{ji} = w_{ji}(t)$. The connectivity of the whole network of neurons can be summarized by a time dependent $N \times N$ weight matrix, $W(t)$, which for three neurons would look like, 
+
+\begin{equation*}
+W(t) = 
+\begin{pmatrix}
+w_{11}(t) & w_{12}(t) & w_{13}(t)\\
+w_{21}(t) & w_{22}(t) & w_{23}(t)\\
+w_{31}(t) & w_{32}(t) & w_{33}(t)\\
+\end{pmatrix}.
+\end{equation*}
+
+The weights are unknown, and are the parameters that we want to infer from the spike data. 
+
+
+%For the whole system of neurons, the probability for the state at time $t$ is,
+
+%\begin{equation}
+    %P(S_t|W_t) = \prod_{i,t} P(s_{it}|S_{t-1}, W_t).
+%\end{equation}
+
+ %where $\{t_1, t_2, ..., t_n\}$ is \ a sequence of equally spaced time steps in [0,T], where $t_{k}-t_{k-1} = t_1$.  To keep as much information as possible, it is preferable to set the time intervals so small that there is very low probability that the neuron will spike more than once in the intervals. Then, at time $t$ we have a collection of $N$ sequences
+
+%\begin{equation}
+    %S_{t} = \{\{s_{i,t_1}, ,...,s_{i,t-1},s_{it}\}\}_{i=0}^{N} \quad s_{i,t_k} \in {0,1}
+%\end{equation}
+
+
+\subsection{Inferring time varying weights}
+The goal is to infer the time varying weighs given the set of spiking values. As mentioned in chapter \ref{ch:theory} it is preferable to use a Bayesian approach, so one can include prior information. The prior will later be defined in terms of learning rules, but for this project it is set to be a restriction on how much a weight is allowed to vary from one time step to another. So, the prior distribution to be used is a gaussian distribution for each $w_{ij}(t)$ centered at $w_{ij}(t-1)$, each with standard deviation $\sigma$, namely
+
+\begin{equation}
+    P(W(t)) = \frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}},
+\end{equation}
+
+where
+
+\begin{equation}
+    \Gamma = \sum_{j=0}^{N} \sum_{t=0}^{T-1} (w_{ji}(t+1)-w_{ji}(t))^2.
+\end{equation}
+
+ This prior is reasonable since we know that the true weights are correlated in time. Hence, we have the following expression for the posterior distribution for the weights
 
 \begin{equation}
 \label{Posterior}
         P(\{W_t\}_{t=1}^{T}|S_t) = \frac{P(S_t|W_t)\times P(W_t)}{P(S_t)} = \frac{\Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\}}{P(S_t)}, 
 \end{equation}
+
+where
 
 \begin{equation}
         P(S_t) = \int \Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\} d{W_t}.
@@ -175,7 +195,7 @@ To infer the weights from the data, the Metropolis-Hastings algorithm was used. 
 
 \begin{equation}
 \begin{split}
-    l({\bf w_{12}}) = \sum_i \sum_t s_{2,t,i}(b_2 w_{12,t}*s_{1,t-1,i}) - log(1 + exp(b_2 w_{12,t} * s_{1,t-1,i})) \\
+    l({\bf w_{12}}) = \sum_i \sum_t s_{2,t,i}(b_2 + w_{12,t}*s_{1,t-1,i}) - log(1 + exp(b_2 + w_{12,t} * s_{1,t-1,i})) \\
     \Gamma({\bf w_{12}}) = \sum_{t=2}^T (w_{12,t} - w_ {12,t-1})^2\\
     \log ( \alpha) = l({\bf w_{12}}_{new}) - l({\bf w_{12}}) - \Gamma({\bf w_{12}}_{new})/2\sigma + \Gamma({\bf w_{12}})/2\sigma.
 \end{split}
@@ -231,7 +251,7 @@ First the procedure in algorithm \ref{alg:M-H} was performed with 10 seconds (40
     \includegraphics[scale=0.8]{fig/LR_underllying.png}
 \end{figure}
 
-An easy way to simplify the problem and to utilize the time correlations is to specify equally sized time bins and assume that the weight is constant within each time bin. Since we have restricted the degrees of freedom this can only give a rough estimate of the weights. However, this can still be useful to investigate whether we can characterize the learning trends with only one spike trajectory. The learning rule itself has much fewer parameters than the number of weights. 
+An easy way to simplify the problem and to utilize the time correlations is to specify equally sized time windows and assume that the weight is constant within each window. Since we have restricted the degrees of freedom this can only give a rough estimate of the weights. However, this can still be useful to investigate whether we can characterize the learning trends with only one spike trajectory. The learning rule itself has much fewer parameters than the number of weights. 
 
 
 
