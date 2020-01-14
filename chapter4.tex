@@ -101,6 +101,8 @@ Inference will be made by the use of MCMC, so the interesting value to compute i
 \end{split}
 \end{equation}
 
+The parameters, $\sigma$, will be referred to at the \textit{prior standard deviation}. This can be adjusted to vary the dominance of the prior distribution. 
+
 
 \section{Method for test cases}
 \label{Method}
@@ -153,6 +155,7 @@ The purpose of all the test cases was to infer the underlying weights given the 
 where $w_{12,t}'$  are the inferred weights and $w_{12,t}$ are the generative weights.
 
 \subsection{CASE 1: Inferring constant weight with Newton method}
+\label{sec:CASE1}
 
 The series of Bernoulli variables $\{s_{1t}\}_{t=1}^T$ and $\{s_{2t}\}_{t=1}^T$ were drawn according to equations \ref{Eq:TestCase}, with constant weight $w_{21,t} = w_{21} = 0.7$ and $T=1000$. The score and Fisher value for this situation is 
 
@@ -165,18 +168,19 @@ The series of Bernoulli variables $\{s_{1t}\}_{t=1}^T$ and $\{s_{2t}\}_{t=1}^T$ 
 
 The last equivalence is valid since $s_{1,t}$ only can take values 1 or 0. 
 
-An initial guess was set to $w_{12} = 1$. Newton iterations, as given by equation \ref{eq:Newton}, were performed until convergence.\\ 
+An initial guess was set to $w_{12}^{(0)} = 2$. Newton iterations, as given by equation \ref{eq:Newton}, were performed until convergence.\\ 
 
 \subsection{CASE 2: Inferring dynamic weights with Metropolis-Hastings}
-Now the weights were let to vary, and the aim was to infer the vector ${\bf w_{12}}$ of length T, of weights for each time step. In this test case 10 time steps was used, $T=10$. In the first time step, there is no "previous step" that can be used to evaluate the spike rate of neuron 2. Therefore, in this time step the only thing happening is generating the variable $s_{1,t=1}$. This means that there are 9 weights to infer, corresponding to $t=2,...,10$. From $t=2$, spikes for both neurons are generated, where the spike rate for neuron 2 is computed according to value of the linear predictor. 
+\label{sec:CASE2}
+Now the weights were let to vary, and the aim was to infer the vector ${\bf w_{12}}$ of length T, of weights for each time step. In this test case 10 time steps was used, $T=10$. In the first time step, there is no "previous step" that can be used to evaluate the spike rate of neuron 2. Therefore, in this time step the only thing happening is generating the variable $s_{1}(1)$. This means that there are 9 weights to infer, corresponding to $t=2,...,10$. From $t=2$, spikes for both neurons are generated, where the spike rate for neuron 2 is computed according to value of the linear predictor. 
 
-Before simulation the neuron spiking, the generative weight trajectory was specified. The weight at $t=2$ was set to 0.7, and the remaining weights were drawn as
+Before simulating spiking of the two neurons, the generative weight trajectory was specified. The weight at $t=2$ was set to 0.7, and the remaining weights were drawn as
 
 \begin{equation}
     w_{t} = w_{t-1} + |n(0,0.001)|,
 \end{equation}
 
-where $|n(0,0.001)|$ is the absolute value of a normal distributed parameter with zero mean and variance equal to $0.001$. Figure \ref{fig:Generative} shows an example of how a typical generative weight trajectory for this test case looks like. 
+where $|n(0,0.001)|$ is the absolute value of a normal distributed parameter with zero mean and variance equal to $0.001$. The absolute value is used so that the weight trajectory imitates a connection that strengthens over time. Figure \ref{fig:Generative} shows an example of how a typical generative weight trajectory for this test case looks like. 
 
 \begin{figure}
 \caption{Example generative weight trajectory in case 2}
@@ -186,12 +190,12 @@ where $|n(0,0.001)|$ is the absolute value of a normal distributed parameter wit
 \end{figure}
 
 
-In reality the number of time steps is much larger, and changing much slower. However, this is done as a simple way to investigate whether and how well the algorithm can infer time varying weights. 
+In reality the number of time steps is much larger, and changing much slower. However, few time steps is used in this test case for simplicity and shorter running time. Therefore, the plasticity is set high so that it is possible to investigate whether the algorithm can infer time varying weights and not only approximates to a constant value. 
 
 Spike trains for the two neurons were again drawn according to equation \ref{Eq:TestCase}, this time using the generated time varying weights. These spike trains were drawn various number of times for the same weight trajectory, for comparing the goodness of the algorithm for different amounts of data. In other words, for one weight trajectory $\{w_{12,t}\}_{t=1}^T$ it was simulated spike trains
-$\{\{s_{1,t,i}\}_{t=1}^T\}_{i=1}^I$ and $\{\{s_{2,t,i}\}_{t=1}^T\}_{i=1}^I$ with $I \in \{1,10,100,1000,10000 \}$.
+$\{\{s_{1}(t)_i\}_{t=1}^T\}_{i=1}^I$ and $\{\{s_{2}(t)_i\}_{t=1}^T\}_{i=1}^I$ with $I \in \{1,10,100,1000,10000 \}$.
 
-To infer the weights from the data, the Metropolis-Hastings algorithm was used. In the algorithm the equations given by ?? needs to be computed in every iteration. For this two neuron system, these equations are calculated as
+To infer the weights from the data, the Metropolis-Hastings algorithm was used. In the algorithm the expression given by \ref{eq:ratio} needs to be computed in every iteration. For this two neuron system, these equations are calculated as
 
 \begin{equation}
 \begin{split}
@@ -201,7 +205,7 @@ To infer the weights from the data, the Metropolis-Hastings algorithm was used. 
 \end{split}
 \end{equation}
 
-$\sigma$ will be referred to as the \textit{prior variance}. In this case the  prior variance was equal to $0.0001$. The proposal distribution used was a multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration, variances equal to $0.0001$ and zero covariances. 
+In this case the prior variance was equal to $ 0.0001$. The proposal distribution used was a multivariate normal distribution with mean vector equal to the weight trajectory from the last iteration, variances equal to $0.0001$ and zero covariances. 
 The Metropolis-Hastings procedure for this case is summarized in algorithm \ref{alg:M-H}.
 
 \begin{algorithm}
@@ -225,7 +229,7 @@ The Metropolis-Hastings procedure for this case is summarized in algorithm \ref{
 \end{algorithmic}
 \end{algorithm}
 
-Two variants of this procedure was performed. One where the initial guess was equal to the generative weights, and one where the initial guess was a random walk around 1. 
+Two variants of this procedure was performed. First, the initial guess was set equal to the generative weights. This gives insight into how well the procedure manages to stay at the correct solution. In reality the true weights are not known. Therefore, it is also relevant to check whether the generative weights can be inferred when starting somewhere else. So in the second variant the initial guess was a random walk around 1. 
 
 \subsection{CASE 3: Weights generated by learning rule}
 In reality it is not possible to perform multiple spiking replicates for the same weight trajectory. If the synaptic connections are changing according to learning rules, as presented in section \ref{sec:LR}, the weight updates are dependent on the spiking as time goes by. Since the spiking is a random process, it cannot be reproduced properly. Therefore, we have to rely on only one spike train per neuron, for one weight trajectory. However, in reality the time series is longer and the weights are changing slower and are strongly correlated in time. 
