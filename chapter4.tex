@@ -2,13 +2,13 @@
 
 \chapter{Methods}
 
-Now we move to the modeling of neurons and synapses. In section \ref{set_up} the different elements included in the model are introduced and the most important equations from GLM and MCMC are defined for this system. Simulated experiments with two neurons and one directed synaptic connection was performed for test purposes. Various approaches for inferring time varying weighs were tried and their limitations were investigated. In section \ref{Method} the methods of the test experiments are described in detail. Section \ref{Precalc} presents some calculations based on probability theory to say something about how well the method is expected to perform.
+Now we move to the context of neurons and synapses. In section \ref{set_up} the different elements included in the model are introduced and the most important equations from GLM and MCMC are defined for this system. Simulated experiments with two neurons and one directed synaptic connection was performed for test purposes. Various approaches for inferring time varying weighs were tried and their limitations were investigated. In section \ref{Method} the methods of the test experiments are described in detail. Section \ref{Precalc} presents some calculations based on probability theory to say something about how well the method is expected to perform.
 
 \section{Model}
 \label{set_up}
 
 \subsection{Framework}
-The data material is the time points for action potentials in time interval $[0,K]$ for the N neurons, as given by equation \ref{eq:AP}. Let the time line be divided into T equally sized bins, and number these bins,
+As described in section \ref{Lab}, the data material is the time points for action potentials in time interval $[0,K]$ for the N neurons, as given by equation \ref{eq:AP}. Let the time line be divided into T equally sized bins, and number these bins,
 
 \begin{equation}
     t \in \{1, 2, ..., T\}.
@@ -23,9 +23,10 @@ Also, let $s_{i}(t) \in \{0,1\}$ be a binary variable taking value 1 if neuron $
     \includegraphics[scale=0.7]{Sp_t.png}
 \end{figure} 
 
-The variable $s_{i}(t)$ can be considered a stochastic variable from a Bernoulli process. It has expected value $\lambda (t)$, also referred to as \textit{spike rate}, that can be understood as the probability that the neuron will fire in the time bin $t$. This depends on some linear predictor, $\eta_i(t)$ through a logit link function. 
+The variable $s_{i}(t)$ can be considered a stochastic variable from a Bernoulli process. It has expected value $\lambda (t)$, also referred to as \textit{spike rate}, that can be understood as the probability that the neuron will fire in the time bin $t$. The value of this spike rate is calculated from some linear predictor, $\eta_i(t)$ through a logit link function. 
 
 \begin{equation}
+\label{eq:prob}
 \begin{split}
 P(s_i(t)|\lambda_i(t)) =  Ber(\lambda_i(t)) = \lambda_i(t)^{s_i(t)}(1-\lambda_i(t))^{1-s_i(t)}, \\ \lambda_i(t) = h(\eta_i(t))= \frac{exp(\eta_i(t))}{1+exp(\eta_i(t))}.
 \end{split}
@@ -34,6 +35,7 @@ P(s_i(t)|\lambda_i(t)) =  Ber(\lambda_i(t)) = \lambda_i(t)^{s_i(t)}(1-\lambda_i(
 The linear predictor is a linear combination of the states of the neurons at the previous time step and a background noise, $b_i$. This is expressed as,
 
 \begin{equation}
+\label{eq:lin_pred}
     \eta_i(t) = \Big (\sum_{j=0}^{N}  w_{ji}(t)s_j(t-1) \Big) + b_i.
 \end{equation}
 
@@ -65,39 +67,52 @@ The weights are unknown, and are the parameters that we want to infer from the s
 
 
 \subsection{Inferring time varying weights}
-The goal is to infer the time varying weighs given the set of spiking values. As mentioned in chapter \ref{ch:theory} it is preferable to use a Bayesian approach, so one can include prior information. The prior will later be defined in terms of learning rules, but for this project it is set to be a restriction on how much a weight is allowed to vary from one time step to another. So, the prior distribution to be used is a gaussian distribution for each $w_{ij}(t)$ centered at $w_{ij}(t-1)$, each with standard deviation $\sigma$, namely
+The goal is to infer the time varying weighs given the set of spiking values. As mentioned in chapter \ref{ch:theory} it is preferable to use a Bayesian approach, so one can include prior information. The prior will later be defined in terms of learning rules, but for this project it is set to be a restriction on how much a weight is allowed to vary from one time step to another. So, the prior distribution to be used is a gaussian distribution for each $w_{ji}(t)$ centered at $w_{ji}(t-1)$, each with standard deviation $\sigma$, namely
 
 \begin{equation}
-    P(W(t)) = \frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}},
+    P(W) = \frac{\exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}},
 \end{equation}
 
-where
+where $W=\{W(t)\}_{t=1}^N$, and
 
 \begin{equation}
     \Gamma = \sum_{j=0}^{N} \sum_{t=0}^{T-1} (w_{ji}(t+1)-w_{ji}(t))^2.
 \end{equation}
 
- This prior is reasonable since we know that the true weights are correlated in time. Hence, we have the following expression for the posterior distribution for the weights
+Even though this is a simple prior to be used to test purposes, it is reasonable since we know that the true weights are correlated in time. 
+
+Let $S(t) = \{s_i(t)\}_{i=1}^N$ be the collection of spike data for all the neurons at time $t$. As deduced from equation \ref{eq:prob} and \ref{eq:lin_pred}, all information about the spike rate of neuron $i$, $\lambda_i(t)$, is covered by the weights, the spike data in time step $t-1$ and the background rate $b_i$. Since the spike data and the background rate is considered as know, we can set
+
+\begin{equation}
+    P(s_i(t)|\lambda_i(t)) = P(s_i(t)|S(t-1),W(t), b_i) = P(s_i(t)|W(t)),
+\end{equation}
+
+which is the likelihood of $s_i(t)$ given some specified $W(t)$. The likelihood for all the spike data, $D=\{S(1), S(2)...,S(T)\}$ is then
+
+\begin{equation}
+    P(D|W) = \prod_{i,t} P(s_i(t)|W(t)).
+\end{equation}
+
+Hence, we have the following expression for the posterior distribution for the weights
 
 \begin{equation}
 \label{Posterior}
-        P(\{W_t\}_{t=1}^{T}|S_t) = \frac{P(S_t|W_t)\times P(W_t)}{P(S_t)} = \frac{\Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\}}{P(S_t)}, 
+        P(W|D) = \frac{P(D|W)\times P(W)}{P(D)} = \frac{\Big\{\prod_{i,t} P(s_{i}(t)|S(t-1), W(t))\Big\} \times \Big\{\frac{\exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\}}{P(D)}, 
 \end{equation}
 
 where
 
 \begin{equation}
-        P(S_t) = \int \Big\{\prod_{i,t} P(s_{it}|S_{t-1}, W_t)\Big\} \times \Big\{\frac{exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\} d{W_t}.
+        P(D) = \int \Big\{\prod_{i,t} P(s_{i}(t)|S(t), W(t))\Big\} \times \Big\{\frac{\exp(-\Gamma /2\sigma)}{\sqrt{2\pi \sigma}}\Big\} d{W}.
 \end{equation}
 
-Inference will be made by the use of MCMC, so the interesting value to compute is the fraction of the posterior distribution given some suggested new value for the weights, $W_{t, new}$ and that of the previously accepted value $W_t$. Hence, the denominator $P(S_t)$ will disappear, and there is no need to compute it. The product of factors less then one will decrease towards zero as the number of factors increases. Therefore, to avoid computer rounding to zero of the likelihood for a large number of time steps, it is necessary to use the log values instead. The value we are computing is hence the log of equation ??  inserting the posterior distribution in equation \ref{Posterior}. The expression is the following
+Since Metropolis-Hastings will be used for making inference, there is no need to compute the denominator, $P(D)$. The value that is necessary to compute is the ratio between the posterior distribution for some suggested weights $W'$ and for some "current" weights $W$. The product of factors less then one will decrease towards zero as the number of factors increases. Therefore, to avoid computer rounding to zero of the likelihood for a large number of time steps, it is necessary to use the log values for computations instead. The relevant value to compute in each iterations is the following,
 
 \begin{equation}
 \label{eq:ratio}
 \begin{split}
-    \log (\alpha) = 
-    \log \frac{\big \{ \prod_{i,t} P(s_{it}|S_{t-1}, W_{t,new})\big \} \times exp(-\Gamma_{new} /2\sigma)}{\big \{ \prod_{i,t}  P(s_{it}|S_{t-1}, W_t) \big \} \times exp(-\Gamma /2\sigma)} \\
-    = \Big \{ \sum_{i,t} \log( P(s_{it}|S_{t-1}, W_{t,new})) - \log( P(s_{it}|S_{t-1}, W_t)) \Big \} -\Gamma_{new} /2\sigma +  \Gamma /2\sigma
+    \log \frac{\big \{ \prod_{i,t} P(s_{i}(t)|S(t-1), W(t)'\big \} \times \exp(-\Gamma' /2\sigma)}{\big \{ \prod_{i,t}  P(s_{i}(t)|S(t), W(t)) \big \} \times \exp(-\Gamma /2\sigma)} \\
+    = \Big \{ \sum_{i,t} \log( P(s_{i}(t)|S(t-1), W(t)')) - \log( P(s_{i}(t)|S(t-1), W(t)) \Big \} -\Gamma' /2\sigma +  \Gamma /2\sigma
 \end{split}
 \end{equation}
 
@@ -114,13 +129,13 @@ In this project three test cases was performed on a simple system consisting of 
     \includegraphics[scale=0.6]{Two_neurons_illustration.png}
 \end{figure}
 
-Neuron 1 has a constant probability for spiking, according to a background parameter $b_1$. Neuron 2 has spiking probability that depends on the spiking of $N_1$ in the previous time step through the linear predictor $b_2 + w_{21,t} \cdot s_{1,t-1}$. The actual spiking rate is related to the linear predictor through a logit link, as described in section \ref{sec:Bernoulli}. The distributions of the stochastic variables $s_{i,t}$, representing the spiking in this system, are given by equation \ref{Eq:TestCase}.
+Neuron 1 has a constant probability for spiking, according to a background parameter $b_1$. Neuron 2 has spiking probability that depends on the spiking of $N_1$ in the previous time step through the linear predictor $b_2 + w_{21}(t) \cdot s_{1}(t-1)$. The actual spiking rate is related to the linear predictor through a logit link, as described in section \ref{sec:Bernoulli}. The distributions of the stochastic variables $s_{i}(t)$, representing the spiking in this system, are given by equation \ref{Eq:TestCase}.
 
 \begin{equation}
 \begin{split}
 \label{Eq:TestCase}
-    s_{1t} \sim \text{Ber}(\pi_{1t}) \hspace{3cm} \pi_{1t}= \frac{1}{1+e^{-b_1}} \\
-    s_{2t} \sim \text{Ber}(\pi_{2t}) \hspace{1cm} \pi_{2t}= \frac{1}{1+e^{-(b_2 + w_{21,t} \cdot s_{1,t-1})}}
+    s_{1}(t) \sim \text{Ber}(\pi_{1}(t)) \hspace{3cm} \pi_{1}(t)= \frac{1}{1+e^{-b_1}} \\
+    s_{2}(t) \sim \text{Ber}(\pi_{2}(t)) \hspace{1cm} \pi_{2}(t)= \frac{1}{1+e^{-(b_2 + w_{21}(t) \cdot s_{1}(t-1)}}
 \end{split}
 \end{equation}
 
@@ -131,7 +146,7 @@ Typical parameter values to be used in the test cases are 0.5 and 1 for b1, and 
 \centering
 \begin{tabular}{|c|c|c|c|}
 	\hline
-	Neuron & b & \pi_{s_{1,t-1}=0} & \pi_{s_{1,t-1}=1} \\
+	Neuron & b & \pi_{s_{1}(t-1)=0} & \pi_{s_{1}(t-1)=1} \\
 	\hline\hline
 	1 & 0 & 0.5 & 0.5\\
 	\hline
@@ -149,24 +164,24 @@ Typical parameter values to be used in the test cases are 0.5 and 1 for b1, and 
 The purpose of all the test cases was to infer the underlying weights given the spike train data. Normalizes root mean square error (rnMSE) was used measure the goodness of the various test cases. This was calculated according to the following equation,
 
 \begin{equation}
-    rnMSE = \sqrt{\frac{\sum_t(w_{12,t}'-w_{12,t})^2}{\sum_t w_{12,t}^2}},
+    rnMSE = \sqrt{\frac{\sum_t(w_{12}(t)^I-w_{12}(t))^2}{\sum_t w_{12}(t)^2}},
 \end{equation}
 
-where $w_{12,t}'$  are the inferred weights and $w_{12,t}$ are the generative weights.
+where $w_{12}(t)^I$  are the inferred weights and $w_{12}(t)$ are the generative weights.
 
 \subsection{CASE 1: Inferring constant weight with Newton method}
 \label{sec:CASE1}
 
-The series of Bernoulli variables $\{s_{1t}\}_{t=1}^T$ and $\{s_{2t}\}_{t=1}^T$ were drawn according to equations \ref{Eq:TestCase}, with constant weight $w_{21,t} = w_{21} = 0.7$ and $T=1000$. The score and Fisher value for this situation is 
+The series of Bernoulli variables $\{s_{1}(t)\}_{t=1}^T$ and $\{s_{2}(t)\}_{t=1}^T$ were drawn according to equations \ref{Eq:TestCase}, with constant weight $w_{21}(t) = w_{21} = 0.7$ and $T=1000$. The score and Fisher value for this situation is 
 
 \begin{equation}
 \begin{split}
-    score(w_{12}) = \sum_{t=2}^{T} s_{1, t-1} (s_{2,t}-\pi_{2,t}), \\
-    H(w_{12}) = \sum_{t=2}^T s_{1, t-1}^2 \pi_t(1-\pi_t) = \sum_{t=1}^T s_{1, t-1} \pi_t(1-\pi_t).
+    score(w_{12}) = \sum_{t=2}^{T} s_{1}(t-1) (s_{2}(t)-\pi_{2}(t)), \\
+    H(w_{12}) = \sum_{t=2}^T s_{1}(t-1)^2 \pi(t)(1-\pi(t)) = \sum_{t=1}^T s_{1}(t-1) \pi(t)(1-\pi(t)).
 \end{split}
 \end{equation}
 
-The last equivalence is valid since $s_{1,t}$ only can take values 1 or 0. 
+The last equivalence is valid since $s_{1}(t)$ only can take values 1 or 0. 
 
 An initial guess was set to $w_{12}^{(0)} = 2$. Newton iterations, as given by equation \ref{eq:Newton}, were performed until convergence.\\ 
 
@@ -177,7 +192,7 @@ Now the weights were let to vary, and the aim was to infer the vector ${\bf w_{1
 Before simulating spiking of the two neurons, the generative weight trajectory was specified. The weight at $t=2$ was set to 0.7, and the remaining weights were drawn as
 
 \begin{equation}
-    w_{t} = w_{t-1} + |n(0,0.001)|,
+    w(t) = w(t) + |n(0,0.001)|,
 \end{equation}
 
 where $|n(0,0.001)|$ is the absolute value of a normal distributed parameter with zero mean and variance equal to $0.001$. The absolute value is used so that the weight trajectory imitates a connection that strengthens over time. Figure \ref{fig:Generative} shows an example of how a typical generative weight trajectory for this test case looks like. 
@@ -199,9 +214,9 @@ To infer the weights from the data, the Metropolis-Hastings algorithm was used. 
 
 \begin{equation}
 \begin{split}
-    l({\bf w_{12}}) = \sum_i \sum_t s_{2,t,i}(b_2 + w_{12,t}*s_{1,t-1,i}) - log(1 + exp(b_2 + w_{12,t} * s_{1,t-1,i})) \\
-    \Gamma({\bf w_{12}}) = \sum_{t=2}^T (w_{12,t} - w_ {12,t-1})^2\\
-    \log ( \alpha) = l({\bf w_{12}}_{new}) - l({\bf w_{12}}) - \Gamma({\bf w_{12}}_{new})/2\sigma + \Gamma({\bf w_{12}})/2\sigma.
+    l({\bf w_{12}}) = \sum_i \sum_t s_{2,i}(t)(b_2 + w_{12}(t)*s_{1,i}(t-1)) - log(1 + exp(b_2 + w_{12}(t) * s_{1,i}(t-1))) \\
+    \Gamma({\bf w_{12}}) = \sum_{t=2}^T (w_{12}(t) - w_ {12}(t-1))^2\\
+    \log ( \alpha) = l({\bf w_{12}}') - l({\bf w_{12}}) - \Gamma({\bf w_{12}}')/2\sigma + \Gamma({\bf w_{12}})/2\sigma.
 \end{split}
 \end{equation}
 
@@ -214,14 +229,14 @@ The Metropolis-Hastings procedure for this case is summarized in algorithm \ref{
 \State Create empty list $[]$ for weight sample
 \State Set start guess ${\bf w_{12}} = {\bf w_{12}}^{(guess)}$
 \For {$iteration=1,2,\ldots$}
-\State Draw ${\bf w_{12}}_{new}$ from proposal distribution
+\State Draw ${\bf w_{12}}'$ from proposal distribution
 \State Compute $log(\alpha)$
 \State Compute $\alpha = exp(log(\alpha))$
 \If {$\alpha > 1$}
-\State ${\bf w_{12}} = {\bf w_{12}}_{new}$
+\State ${\bf w_{12}} = {\bf w_{12}}'$
 \Else 
 \If {random.uniform(0,1) $<\alpha$}
-\State ${\bf w_{12}} = {\bf w_{12}}_{new}$
+\State ${\bf w_{12}} = {\bf w_{12}}'$
 \EndIf
 \EndIf
 \State Add ${\bf w_{12}}$ to sample list
