@@ -2,7 +2,7 @@
 
 \chapter{Methods}
 
-Now we move to the context of neurons and synapses. In section \ref{set_up} the different elements included in the model are introduced and the most important equations from GLM and MCMC are defined for this system. Simulated experiments with two neurons and one directed synaptic connection was performed for test purposes. Various approaches for inferring time varying weighs were tried and their limitations were investigated. In section \ref{Method} the methods of the test experiments are described in detail. Section \ref{Precalc} presents some calculations based on probability theory to say something about how well the method is expected to perform.
+Now we move to the context of neurons and synapses. In section \ref{set_up} the different elements included in the model are introduced and the most important equations from GLM and MCMC are defined for this system. Simulated experiments with two neurons and one directed synaptic connection was performed for test purposes. Various approaches for inferring time varying weighs were tried and their limitations were investigated. In section \ref{Method} the methods of the test experiments are described in detail.
 
 \section{Model}
 \label{set_up}
@@ -274,35 +274,35 @@ An easy way to simplify the problem and to utilize the time correlations is to s
 
 
 
-\section{Precalculations}
-\label{Precalc}
+%\section{Precalculations}
+%\label{Precalc}
 
-\begin{itemize}
-    \item The aim here is to calculate how well I expect my tests to work. Can use hypothesis testing on bernoulli GLM 
-    \item Say something about how many time points ect that is needed to be able to detect a change of the weights
-\end{itemize}
+%\begin{itemize}
+    %\item The aim here is to calculate how well I expect my tests to work. Can use hypothesis testing on bernoulli GLM 
+    %\item Say something about how many time points ect that is needed to be able to detect a change of the weights
+%\end{itemize}
 
-\begin{wraptable}{r}{4cm}
-\begin{center}
- \begin{tabular}{||c c c ||} 
- \hline
- n & Lower & Upper \\ [0.5ex] 
- \hline\hline
- 10 & 0.5 & 1 \\ 
- \hline
- 100 & 0.7 & 0.84 \\
- \hline
- 1000 & 0.748 & 0.792 \\
- \hline
- 10000 & 0.7631 & 0.7769 \\ [1ex] 
- \hline
-\end{tabular}
-\end{center}
-\end{wraptable}
+%\begin{wraptable}{r}{4cm}
+%\begin{center}
+ %\begin{tabular}{||c c c ||} 
+ %\hline
+% n & Lower & Upper \\ [0.5ex] 
+% \hline\hline
+% 10 & 0.5 & 1 \\ 
+% \hline
+ %100 & 0.7 & 0.84 \\
+ %\hline
+ %1000 & 0.748 & 0.792 \\
+ %\hline
+ %10000 & 0.7631 & 0.7769 \\ [1ex] 
+ %\hline
+%\end{tabular}
+%\end{center}
+%\end{wraptable}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.7]{Conf_intervals.png}
-\end{figure}
+%\begin{figure}[h]
+   % \centering
+    %\includegraphics[scale=0.7]{Conf_intervals.png}
+%\end{figure}
 
-It is practical to have some understanding of how precisely the weights can be inferred from the spike data. When performing $n$ repeated trials of a Bernoulli process with success rate $\pi$, the sum successes comes from a binomial distribution, with parameters $n$ and $\pi$. For some success count, $n_{success}$, the parameter $\pi$ can be estimated as $\frac{n_{success}}{n}$. How good this estimate is depends on the number of trials, $n$. Figure ?? and table ?? presents the endpoints of range that contains 90\% of the distribution, for different values of n (scaled by one over n). 
+%It is practical to have some understanding of how precisely the weights can be inferred from the spike data. When performing $n$ repeated trials of a Bernoulli process with success rate $\pi$, the sum successes comes from a binomial distribution, with parameters $n$ and $\pi$. For some success count, $n_{success}$, the parameter $\pi$ can be estimated as $\frac{n_{success}}{n}$. How good this estimate is depends on the number of trials, $n$. Figure ?? and table ?? presents the endpoints of range that contains 90\% of the distribution, for different values of n (scaled by one over n). 

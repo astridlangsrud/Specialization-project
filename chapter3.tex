@@ -282,7 +282,7 @@ is satisfied, which means that $p(x)$ is a stationary distribution of the Markov
 
 Decades of experimental research have revealed certain relations for how spiking of neurons affects the strength of connectivity between them. There are various suggested models, and common to all of them is that they rely on the Hebbian theory. In simple manners the theory says that if firing of neuron A frequently induce firing of neuron B, then the connection between the two neurons will strengthen (\cite{Hebb}). The functional expressions that describe this synaptic plasticity is referred to as \textit{learning rules}. Classical learning rules for LTP and LTD, considers the instantaneous firing rates of the pre- and postsynaptic neurons. The somewhat newer model described in Linderman, the \textit{spike-timing-dependent plasticity} (STDP) learning rule, takes a different approach. It examine individual spikes and involves a consideration of the time interval between firing of the two neurons. This is the variant to be considered in this project, and the matemathical formulations is presented in section \ref{sec:LR}.
 
-\subsection{Learning rules}
+\subsection{STDP rules}
 \label{sec:LR}
 
 Let $F(\leq t)$ be a collection of measured neural firing up till time $t$ and let $C(t)$ be a measure of the synaptic strength between neuron A and neuron B at time $t$. The time unit for $t$ is not specified here, but is assumed to be suitable. The update of this connectivity from one time step to another can be expressed as
@@ -294,7 +294,7 @@ Let $F(\leq t)$ be a collection of measured neural firing up till time $t$ and l
 
 where $l$ is a learning rule depending on the current connectivity and the firing history and $\epsilon$ is some random noise. 
 
-In the STDP-rule the synaptic connection between two neurons is updated according to the spike history of those two neurons only. Other rules includes dependencies across the whole network. Potentation occurs whenever neuron B spikes shortly after neuron A, and depression if neuron A spikes shortly after neuron B. The canonical STDP rule looks like
+In the STDP-rule the synaptic connection between two neurons is updated according to the spike history of those two neurons only. Other rules includes dependencies across the whole network. Potentation occurs whenever neuron B spikes shortly after neuron A, and depression if neuron A spikes shortly after neuron B. The additive STDP rule looks like
 
 \begin{equation}
 \label{eq:STDP}
@@ -317,7 +317,11 @@ where $\Tilde{l}_{\pm} = min(l_{\pm},1)$, and $C_{max}$ and $C_{min}$ are upper 
 
 \subsection{Linderman's work}
 \label{Linderman}
-As mentioned, the methods in this project is inspired by a paper, "A framework for studying synaptic plasticity with neural spike train data", by Scott W. Linderman, Christopher H. Stock and Ryan P. Adams from 2014 (about the same material is also found in Scott Linderman's PhD thesis form 2016). It is therefore relevant to present some of the material and results from the paper, to point out which ideas I have taken from it. 
+As mentioned, the methods in this project is inspired by a paper, "A framework for studying synaptic plasticity with neural spike train data", by Scott W. Linderman, Christopher H. Stock and Ryan P. Adams from 2014 (about the same material is also found in Scott Linderman's PhD thesis form 2016). It is therefore relevant to summarize some of the methods and findings in the paper, to point out which ideas I have taken from it. Theoretical details are omitted.
+
+Linderman models firing of single neurons as a Poisson process with time varying firing rate. This rate depends on a constant background rate, a linear function of some stimulus and the activity of connected neurons through unknown connectivity strengths. The connectivity is hypothesized to develop according to either of the two STDP rules presented in section \ref{sec:LR}, and their aim is to infer this from spike data. A method called particle MCMC is used for inference. 
+
+They apply the inference method on GLM-based simulations and on data from the biophysical simulator NEURON. For the GLM variant they generate spikes for one synaptic connection with the additive STDP, the multiplicative STDP and for a static weight. They set the baseline firing rate to be normally distributed with a mean of 20 spikes per second, and update the connections every second for a total of 60 seconds. Then they fit four different models, where two are the STDP models, for the first 50 seconds of spiking data, and calculate the predictive log-likelihood of the models on the remaining 10 seconds. Their results show that for model corresponding to that used for generating data, the connections are inferred quite well compared to with the other models. In all cases the correct model scored highest in predictive log likelihood. 
 
 
 

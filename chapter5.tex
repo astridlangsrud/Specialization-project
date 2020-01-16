@@ -151,5 +151,12 @@ This was done for 1, 5, 10 and 20 number of bins, with 30 replicates for each. T
 
 It is clear from figure \ref{fig:MSE_bins} that there is a trade-off between the constraint imposed by the time windows and the ability to update towards likelier parameters. With 10 windows the number of weights to infer is almost the same as in test case 2, where there was 9. However, it is interesting to note saturation is reached faster. The value of the rnMSE is bigger than in case 2. This is reasonable, as we set a constant weight in each window when the true weight is varying over the window. 
 
+\begin{figure}[hbt!]
+\caption{}
+\label{fig:prior_variance}
+    \centering
+    \includegraphics[scale=0.8]{fig/Prior_variance_plot.png}
+\end{figure}
+
 
 \cleardoublepage
