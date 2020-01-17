@@ -39,7 +39,7 @@ The procedure described in section \ref{sec:CASE2}, and summarized in algorithm 
 \caption{Normalized root MSE over iterations for various number of trials. One example of the method in case 2 when starting from the correct weights}
 \label{fig:Case2_1}
     \centering
-    \includegraphics[scale=0.75]{MSE3.png}
+    \includegraphics[scale=0.6]{MSE3.png}
 \end{figure}
 
 This shows that for the lower number of trials the estimation jumps around, whereas for 10000 trials it is more stable.
@@ -50,7 +50,7 @@ This procedure was repeated 100 times for each number of trials. The underlying 
 \caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to the true weights.}
 \label{fig:case2_avg}
     \centering
-    \includegraphics[scale=0.75]{Mean_plot_std.png}
+    \includegraphics[scale=0.6]{Mean_plot_std.png}
 \end{figure}
 
 %\begin{figure}[hbt!]
@@ -71,20 +71,16 @@ Next, the initial guess for the iterations is set to be a random walk around 1. 
 \caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to random walk around 1}
 \label{fig:MSE2}
     \centering
-    \includegraphics[scale=0.8]{MSE_starting_away.png}
+    \includegraphics[scale=0.6]{MSE_starting_away.png}
 \end{figure}
 
 As clear from the plots, the relaxation time for the learning is dependent on the number of trials. For initial guess equal to the generative weights, saturation happens after around 300 iterations for 10000 trials, and around 2500 iterations for 1000 trials. For less number of trials the solution is still moving away from the solution after 3000 iterations. Figure \ref{fig:MSE2} show that also for 100 trials there is a slow movement in the correct direction. The figures also show that the solution is more stable for the higher number of trials, since the variance bars are thinner.  
 
 To visualize what is happening during the course of the iterations figure \ref{fig:trajectories} displays the how the last accepted weight trajectory to the sample after 100,200,300,400,500 and 1000 iterations looks like, for initial guess a random walk around 1 and 10000 trials. 
 
-Figure \ref{fig:trajectories} shows that the weight trajectory shifts rigidly across iterations towards the generative value. This is enforced by the prior distribution, which demands a continuity in time.
+Figure \ref{fig:trajectories} shows that the weight trajectory shifts rigidly across iterations towards the generative value, and eventually ends up relatively close to the true weights. This is enforced by the prior distribution, which demands a continuity in time. 
 
-\newpage
-
-
-
-\begin{figure}[H]
+\begin{figure}[P]
 \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 100, 200, 300, 400, 500 and 1000 iterations (green)}
 \label{fig:trajectories}
     \centering
@@ -96,21 +92,28 @@ Figure \ref{fig:trajectories} shows that the weight trajectory shifts rigidly ac
     \includegraphics[scale = 0.4]{fig/10000_1000.png}
 \end{figure}
 
+It was also investigated what happens during the iterations for a lower number of trials. For exemplification, with 10 trials various values for the prior variance was tried to see if the results could be improved. All variants gave fluctuating error over iterations, except when the prior was set so strict that no steps were accepted. Figure \ref{fig:10st} illustrates the weight trajectory after 10000 iterations for prior variances in $\{ 0.1, 0.01, 0.001, 0.0001, 0.00001\}$. 10000 iterations was chosen to be sure that if any convergence took place, this would be shown. 
 
+\begin{figure}[P]
+\caption{}
+\label{fig:10st}
+    \centering
+    \includegraphics[scale=0.4]{{10st_0.1prior}.png}
+    \includegraphics[scale = 0.4]{{10st_0.01prior}.png}\\
+    \includegraphics[scale = 0.4]{{10st_0.001prior}.png}
+    \includegraphics[scale = 0.4]{{10st_0.0001prior}.png}\\
+    \includegraphics[scale = 0.4]{{10st_0.00001prior}.png}
+\end{figure}
 
+As seen the starting trajectory used here is quite flat. One could think that this could stop the trajectory from moving away from its starting position, since it is already too good in terms of the prior. Therefore it was also tried a much more variate starting point, and a strict prior variance of 0.00001, to see the result then. The weight after 10000 iterations for this variant is shown in figure \ref{fig:10st2}.
 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.6]{{10st_0.00001prior_1starting}.png}
+    \caption{}
+    \label{fig:10st2}
+\end{figure}
 
-%\begin{figure}[hbt!]
-    %\centering
-    %\includegraphics[scale=0.3]{fig/Start_it_100.png}
-    %\includegraphics[scale = 0.3]{fig/1000_it_100.png}
-    %\includegraphics[scale = 0.3]{fig/2000_it_100.png}\\
-    %\includegraphics[scale = 0.3]{fig/3000_it_100.png}
-    %\includegraphics[scale = 0.3]{fig/4000_it_100.png}
-    %\includegraphics[scale = 0.3]{fig/5000_it_100.png}
-    %\caption{Development of weight trajectory over iterations for 100 trials. 0, 1000, 2000, 3000, 4000 and 5000 iterations}
-    %\label{w_trajectory_1000}
-%\end{figure}
 
 \section{CASE 3}
 \label{sec:CASE3_r}
@@ -121,7 +124,7 @@ First the variant where the weight for all time steps are drawn individually wer
     \caption{True weights (orange), initial guess (green) and inferred weights (blue) after 3000 iterations}
     \label{fig:400_weights}
     \centering
-    \includegraphics[scale=0.8]{fig/{Result_0.08}.png}
+    \includegraphics[scale=0.6]{fig/{Result_0.08}.png}
 \end{figure}
 
 
@@ -145,7 +148,7 @@ This was done for 1, 5, 10 and 20 number of bins, with 30 replicates for each. T
 \caption{}
 \label{fig:MSE_bins}
     \centering
-    \includegraphics[scale=0.8]{fig/MSE_bins.png}
+    \includegraphics[scale=0.6]{fig/MSE_bins.png}
 \end{figure}
 
 
@@ -155,7 +158,7 @@ It is clear from figure \ref{fig:MSE_bins} that there is a trade-off between the
 \caption{}
 \label{fig:prior_variance}
     \centering
-    \includegraphics[scale=0.8]{fig/Prior_variance_plot.png}
+    \includegraphics[scale=0.6]{fig/Prior_variance_plot.png}
 \end{figure}
 
 
