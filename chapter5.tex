@@ -95,7 +95,7 @@ Figure \ref{fig:trajectories} shows that the weight trajectory shifts rigidly ac
 It was also investigated what happens during the iterations for a lower number of trials. For exemplification, with 10 trials various values for the prior variance was tried to see if the results could be improved. All variants gave fluctuating error over iterations, except when the prior was set so strict that no steps were accepted. Figure \ref{fig:10st} illustrates the weight trajectory after 10000 iterations for prior variances in $\{ 0.1, 0.01, 0.001, 0.0001, 0.00001\}$. 10000 iterations was chosen to be sure that if any convergence took place, this would be shown. 
 
 \begin{figure}[P]
-\caption{}
+\caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 10000 iterations with 10 spike trains, and a prior variance of 0.1, 0.01, 0.001, 0.0001 and 0.00001}
 \label{fig:10st}
     \centering
     \includegraphics[scale=0.4]{{10st_0.1prior}.png}
@@ -110,7 +110,7 @@ As seen the starting trajectory used here is quite flat. One could think that th
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{{10st_0.00001prior_1starting}.png}
-    \caption{}
+    \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 10000 iterations with 10 spike trains, and a prior variance of 0.00001. Initial weight trajectory for the iterations were drawn with }
     \label{fig:10st2}
 \end{figure}
 
@@ -155,7 +155,7 @@ This was done for 1, 5, 10 and 20 number of bins, with 30 replicates for each. T
 It is clear from figure \ref{fig:MSE_bins} that there is a trade-off between the constraint imposed by the time windows and the ability to update towards likelier parameters. With 10 windows the number of weights to infer is almost the same as in test case 2, where there was 9. However, it is interesting to note saturation is reached faster. The value of the rnMSE is bigger than in case 2. This is reasonable, as we set a constant weight in each window when the true weight is varying over the window. 
 
 \begin{figure}[hbt!]
-\caption{}
+\caption{Plot of average rnMSE of 20 replicates with 10 windows for prior variances equal to 1, 0.1, 0.02 and 0.005}
 \label{fig:prior_variance}
     \centering
     \includegraphics[scale=0.6]{fig/Prior_variance_plot.png}
