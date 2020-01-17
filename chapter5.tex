@@ -128,7 +128,7 @@ First the variant where the weight for all time steps are drawn individually wer
 \end{figure}
 
 
-Next, the same procedure was performed with dividing the time line into bins, and assuming constant weights within the bins. The initial guess was set to a random walk around 1. The result for dividing 300 seconds into 10 bins, and performing 3000 iterations is shown in figure \ref{fig:10bins}, with prior and proposal variance equal to 0.01, 0.005 and 0.0005.
+Next, the same procedure was performed with dividing the time line into windows, and assuming constant weights within the windows. The initial guess was set to a random walk around 1. The result for dividing 300 seconds into 10 windows, and performing 3000 iterations is shown in figure \ref{fig:10bins}, with prior and proposal variance equal to 0.01, 0.005 and 0.0005.
 
 
 \begin{figure}[hbt!]
@@ -142,7 +142,7 @@ Next, the same procedure was performed with dividing the time line into bins, an
 
 Figure \ref{fig:10bins} shows that $0.01$ and $0.005$ gives a reasonable result, whereas $0.0005$ forces a time continuity that is too strict to properly capture the dynamics.
 
-This was done for 1, 5, 10 and 20 number of bins, with 30 replicates for each. The mean of the rnMSE with variance bars for these are presented in figure \ref{fig:MSE_bins}. Here the prior and proposal variance used was 0.005, which was chosen as it gave reasonable results. 
+This was done for 1, 5, 10 and 20 number of windows, with 30 replicates for each. The mean of the rnMSE with variance bars for these are presented in figure \ref{fig:MSE_bins}. Here the prior and proposal variance used was 0.005, which was chosen as it gave reasonable results. 
 
 \begin{figure}[hbt!]
 \caption{}

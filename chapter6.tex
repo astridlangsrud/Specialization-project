@@ -3,24 +3,34 @@
 \chapter{Discussion and conclusion}
 
 \begin{itemize}
-    \item A few sentences summary of what I am going to present in this chapter
+    \item Short summary of results
+    \item A few sentences of what I am going to present in this chapter
 \end{itemize}
 
 \section{Reviewing the results}
 
 \begin{itemize}
-    \item Short introduction of the main findings in the result; It is possible to 
+    \item The method works well if we have enough data. This is shown by the 10000 trials variants in test case 2. It is also indicated that the method can capture dynamic trends if the weights are slowly changing and recordings are made for a long time.
+    \item As little information is contained in the prior, few data points give bad results, as expected. As indicated in the histograms from case 1, even with 100 data points for a single weight it is not unlikely that the ML value is calculated to above 0.9 or below 0.5 for true value 0.7. So inferring a weight change from 0.7 to 0.8 would be hard. So for a smoothness prior, the best we can hope for is that it stabilizes around the mean weight. 
+    \item Another problem with the method is that since all weights are drawn independently but simultaneously, the probability of drawing a weight trajectory that is considerably better than the previously accepted one gets very little when the weight trajectory is large. If we define success as the event that a weight is drawn to a better position than in the previous iteration, the success rate is 0.5. Then, for the case of 400 time steps, the probability of at least 225 successes is less than one percent. This is the problem in the first plot of case 3.  
 \end{itemize}
 In short the important points to note from the results is that is possible to infer a time varying synaptic connection from spike data, but with only a smoothness prior the method is dependent on having enough data. 
 
 
 
 \section{Further work}
+\begin{itemize}
+    \item Particle MCMC
+    \item Have a dependency more than one time step backward in time. 
+    \item Include effects of the neuron itself spiking?
+    
+\end{itemize}
 
 \section{Conclusion}
 
 \begin{itemize}
-    \item Short summary of the things that has been done in the project; Neurons form connections to each other, and these connections can vary with time. Various learning rules are hypothesized to govern these dynamics. The strength of connections is reflected by the spiking of neurons. Aim to develop a model to infer time varying connectivity based on spike train data. Spiking is modeled with Bernoulli GLMs. Metropolis-Hastings with smoothness prior used for inference. The method showed to work for enough data material. And as expected it did not work well for little data material per inferred weight. To avoid a solution that jumps around, the prior has to be strict for little data. A strict smoothness prior results in a straight line that cannot learn any weight dynamics. Findings in case 3 suggest that 
+    \item Short summary of the things that has been done in the project; Neurons form connections to each other, and these connections can vary with time. Various learning rules are hypothesized to govern these dynamics. The strength of connections is reflected by the spiking of neurons. Aim to develop a model to infer time varying connectivity based on spike train data. Spiking is modeled with Bernoulli GLMs. Metropolis-Hastings with smoothness prior used for inference. The method showed to work for enough data material. And as expected it did not work well for little data material per inferred weight. To avoid a solution that jumps around, the prior has to be strict for little data. A strict smoothness prior results in a straight line that cannot learn any weight dynamics. Findings in case 3 suggest that if the weights are changing slowly, and recordings are made for a long time, trends in weight dynamics can be captured with only one spike train.
+    \item The next goal is to infer parameters for the learning rules, rather than the weights. Also, particle MCMC will be used. This includes using the learning rules for the prior... 
 \end{itemize}
 
 
