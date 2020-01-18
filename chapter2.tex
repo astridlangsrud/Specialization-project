@@ -1,6 +1,7 @@
 %===================================== CHAP 2 =================================
 
 \chapter{Neuroscience context}
+\label{ch:2}
 
 Before going into the statistics and modeling, it is useful to present some context for the work. The aim of this chapter is to describe the relevant concepts from neuroscience, explain the background for the data material and provide a practical understanding of this work. Section \ref{NandC} gives a brief description of signaling and connectivity in neural networks; the source used for this section is the book \textit{Neuroscience}, by Purves. The hallmarks for Alzheimer's disease in the brain are described in section \ref{EandA}, whose content is based on \cite{Gomez} and \cite{Witter:2011}. Section \ref{Lab} provides an outline of the lab experiments where the data set that is background for this project comes from. As mentioned in the introduction, only simulated data will be used for analysis in this project. However, the methods are developed with the ultimate goal of analyzing the real data described here, which will be the object of the master project. 
 
@@ -39,7 +40,7 @@ The strength of these neural connections is not fixed, but can change over time.
 \subsection{Alzheimer's disease and the entorhinal cortex}
 \label{EandA}
 
-One target area in the brain for Alzheimer's research is the \textit{entorhinal cortex}, which is associated with the earliest indications of AD. The entorhinal cortex is a brain region that is phylogenetically conserved across species, so research on how AD develops in rat's entorhinal cortex can give insights for humans as well. It is found in the medial temporal lobe and functions as a gateway between the neocortex and the hippocampus, which is known to be involved in declarative memory and learning. The position  of the entorhinal cortex in the brain is shown in figure \ref{EC} (left). The entorhinal cortex is commonly subdivided into six layers, I-VI. Cells in layer II of the entorhinal cortex are shown to be affected in the initial stages of AD. Therefore layer II neurons are object of the experiments we will get the data from to study how AD affects the plasticity rules.
+Characteristic to brains with Alzheimer's is loss of synapses and neurons. When a patient has struggled from AD for a long time, it is easily seen that the brain has shrinked significantly. Figure \ref{EC} (right) illustrates how a brain can look like after having AD for many years. Exactly what causes these losses is still not known, but it is assumed that the accumulation of some protein types called amyloid plaques and neurofirbillary tangles are involved. Another hallmark of AD is impaired neural activity, which may be related to dysfunctional plasticity mechanisms (\cite{Zott}). Therefore, it is interesting to investigate whether healthy brains and brains with AD can be distinguished due to their synaptic plasticity properties.
 
 \begin{figure}[h]
     \caption{(Left) Illustration of brain showing location of the Entorhinal cortex. (Right) Visual comparison of healthy brain and brain with Alzheimer's disease.}
@@ -50,23 +51,25 @@ One target area in the brain for Alzheimer's research is the \textit{entorhinal 
     \label{brain}
 \end{figure} 
 
-Characteristic to brains with Alzheimer's is loss of synapses and neurons. When a patient have struggled from AD for a long time, it is easily seen that the brain has shrinked significantly. Figure \ref{EC} (right) illustrates how a brain can look like after having AD for many years. Exactly what causes these losses is still not known, but it is assumed that the accumulation of some protein types called amyloid plaques and neurofirbillary tangles are involved. Another hallmark of AD is impaired neural activity, which may be related to dysfunctional plasticity mechanisms (\cite{Zott}). Therefore, it is interesting to investigate whether healthy brains and brains with AD can be distinguished due to their synaptic plasticity properties.
+One target area in the brain for Alzheimer's research is the \textit{entorhinal cortex}, which is associated with the earliest indications of AD. The entorhinal cortex is a brain region that is phylogenetically conserved across species, so research on how AD develops in rat's entorhinal cortex can give insights for humans as well. It is found in the medial temporal lobe and functions as a gateway between the neocortex and the hippocampus, which is known to be involved in declarative memory and learning. The position  of the entorhinal cortex in the brain is shown in figure \ref{EC} (left). The entorhinal cortex is commonly subdivided into six layers, I-VI. Cells in layer II of the entorhinal cortex are shown to be affected in the initial stages of AD. Therefore layer II neurons are object of the experiments we will get the data from to study how AD affects the plasticity rules.
+
+
 
 
 \section{Data material}
 
 \label{Lab}\\
-The data material that is the background for this project is electric potential recordings from in-vitro cultured neural networks from rat brains. Rats do not get Alzheimer's naturally, so AD rats are constructed with a genetic mutation that gives rise to amyloid plaque accumulations in their brains. It is demonstrated that at an age of 8 months, rats with this mutation have learning impairments and behavioural differences from healthy rats (\cite{Radde}). 
+The data material that is the background for this project is electric potential recordings from in-vitro cultured neural networks from rat brains. Rats do not get Alzheimer's naturally, so AD rats are designed with a genetic mutation that gives rise to amyloid plaque accumulation in their brains. It was shown that at an age of 8 months, mice with this mutation have learning impairments and behavioural differences from healthy mice (\cite{Radde}). 
 
-Tissue from layer II of the entorhinal cortex is gathered by microdissection from the brains (\cite{Katrine}). Next they are cultured in a dish, which allows the neurons to survive and grow new synaptic connections. Microelectrode arrays, a sheet of equally spaced needle electrodes, are then used to record the electrical activity of the neurons. Preferably each electrode should measure the activity of one neuron only. However, the recordings are extracellular, which means that the electrodes might pick up signals from several neurons. Therefore, a spike sorting procedure is performed to assign the recorded action potentials to single neurons. 
+In short tissue from layer II of the entorhinal cortex is gathered by microdissection from rat brains (\cite{Katrine})and the embedded neurons are dissociated from their biological substrate to be plated into a dish. Next the seeded neurons are cultured in a mean, which allows them to survive and grow new connections. Once the network is mature, microelectrode arrays, a sheet of equally spaced needle electrodes, are then used to record the electrical activity of the neurons. Preferably each electrode should measure the activity of one neuron only. However, the recordings are extracellular, which means that the electrodes might pick up signals from several neurons. Therefore, a spike sorting procedure is performed to assign the recorded action potentials to single neurons. 
 
-It is the time points for the action potentials that are of interest, and not the actual voltage values. Label the N recorded neurons with numbers $1,2,...,N$. Hence, the relevant data material is a sequence of recorded time points for the action potentials for each neuron. This can be written as, 
+It is the time points for the action potentials that are of interest, and not the actual voltage values. Hence, the relevant data material is a sequence of recorded time points for the action potentials for each neuron, in the time interval $[0,K]$. This can be written as, 
 \begin{equation}
 \label{eq:AP}
     \{\{a_i\}\}_{i=1}^{N} = \{a_{i1}, a_{i2}, ...\}_{i=1}^{N} \quad a_{ix} \in [0,K]
 \end{equation}
 
-where $a_{ix}$ is the recorded time for the x'th action potential for neuron $i$, and $a_{ix-1} < a_{ix}$. Such a sequence of time stamps for neuron firing is called a spike train.\\
+where $a_{ix}$ is the recorded time for the x'th action potential of neuron $i$, $a_{ix-1} < a_{ix}$, and $i=1,2,...,N$ labels the neurons. Such a sequence of time stamps of a single firing neuron is called a spike train.\\
 
 
 

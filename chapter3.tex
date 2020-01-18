@@ -3,41 +3,43 @@
 \chapter{Background and theory}
 \label{ch:theory}
 
-The goal is to characterize the dynamics of synaptic connections based on the data material from the lab experiments. Since we know that simultaneous spiking of the presynaptic and postsynaptic neuron affects the synaptic connection, it is relevant to study the changing of neuronal spike rates in relation to the spiking of the surrounding neurons. For one neuron at one time step, the situation of spiking or not spiking can be considered as a Bernoulli process, with some time dependent spiking rate $\lambda (t)$. This spiking rate can be expressed function of the spike history of the neuron itself and of the other neurons, which can be modelled using a Generalized Linear Model (GLM). The relevant statistical theory is described in section \ref{sec:stats}. Section \ref{Intro_GLM} provides a general introduction to the GLM framework and presents how it looks like for a Bernoulli distribution. In section \ref{sec:Inference} it is explained how inference in GLMs can be made according to the maximum likelihood and gradient based methods. 
+The goal of this project is to characterize the dynamics of synaptic connections based on the data material from the lab experiments. Since we know that simultaneous spiking of the presynaptic and postsynaptic neuron affects the synaptic connection, it is relevant to study the changing of neuronal spike rates in relation to the spiking of the surrounding neurons. For one neuron at one time step, the situation of spiking or not spiking can be considered as a Bernoulli process, with some time dependent spiking rate $\lambda (t)$. This spiking rate can be expressed function of the spike history of the neuron itself and of the other neurons, which can be modelled using a Generalized Linear Model (GLM). The relevant statistical theory is described in section \ref{sec:stats}. Section \ref{Intro_GLM} provides a general introduction to the GLM framework and presents how it looks like for a Bernoulli distribution. In section \ref{sec:Inference} it is explained how inference in GLMs can be made according to the maximum likelihood and gradient based methods. 
 
-Gradient based methods with maximum likelihood works well if the problem is convex and enough information is stored in the data. If we have a system with stationary connectivity, this approach is suitable. For a network of N neurons with dynamical connections over T time steps, the number of parameters is of $O(N^2 \times T)$, whereas the number of data points is of $O(N \times T)$. This means that the system with dynamical connections is undersampled for the technique presented in section \ref{sec:Inference}. However, there are big correlations in time, and we have hypotheses on the connectivity dynamics from learning rules. Therefore, taking advantage of the prior knowledge with a Bayesian approach is a natural choice. A description of the Bayesian framework is given in section \ref{BayesianFW}. Including prior distributions typically do not preserve the convexity of the problem, so we have to resort to Monte-Carlo techniques to characterize the posterior. The Metropolis-Hastings algorithm is chosen as a starting point. The background theory for this is provided in section \ref{Metropolis}, where the information is gathered from the source \cite{MC}.
+Gradient based methods with maximum likelihood works well if the problem is convex and enough information is stored in the data. If we have a system with stationary connectivity, this approach is suitable. For a network of N neurons with dynamical connections over T time steps, the number of parameters is of $O(N^2 \times T)$, whereas the number of data points is of $O(N \times T)$. This means that in absence of additional constraints on the connectivity the system with dynamical weights is severely undersampled and thus maximum likelihood inference as presented in section \ref{sec:Bernoulli} is not feasible. Fortunately the biological system we are modelling in this project, a plastic neuronal network, instructs us on reasonable constraints to the problem, starting from auto-correlations of the synaptic connections and synaptic plasticity rules. It follows then naturally to incorporate this prior knowledge on the model parameters into the inference process by taking a Bayesian approach. A description of the Bayesian framework is given in section \ref{BayesianFW}. Including prior distributions typically do not preserve the convexity of the problem, so we have to resort to Monte-Carlo techniques to characterize the posterior. The Metropolis-Hastings algorithm is chosen as a starting point. The background theory for this is provided in section \ref{Metropolis}, where the information is gathered from the source \cite{MC}.
 
 The hypothesized models for connectivity dynamics are based on observations from lab experiments with neural networks. Section \ref{sec:SP} presents background for some general learning rules, those that are investigated in Linderman's paper. In this project the learning rules will only be used for generating neural activity in simulations, and not for inference. For my master thesis inferring dynamical connectivity using learning rules will be a main focus. Therefore, this background is included here to give some context, and to enable a discussion of the results with reference to the learning rules.
 
 \section{Generalized linear models}
 \label{sec:stats}
 
+Generalized linear models (GLMs) are a class of regression models extending the linear modelling framework to response variables which are not normally distributed. Maximum likelihood inference on GLMs is often performed by gradient ascent.
+
 \subsection{Introduction}
 \label{Intro_GLM}
-Consider the data set $ \{y_{i}, \bold{x_{i}}\}_{i=1}^{n} $ of $i$ sampling units, where $y_i$ represents an observed response value and $ \bold{x_i}$ are the corresponding explanatory variables. In general linear regression the relationship between the dependent and independent variables is modeled by the linear function:
+Consider a system constituted by the variable Y, regarded as response (dependent) variable and a set of variables ${X_j}, {j=1,...,P}$, regarded as explanatory (independent). If $\{y,\mathbf{x}\}$ is a sample of the system, then in  linear regression the relationship between the dependent and independent variables is modeled by the linear function:
 
 \begin{equation}
 \label{eq:general}
-    \textbf{y} = \bm{ \beta}\bf X + \bm{ \epsilon}
+    y = \bm{ \beta} \mathbf{x} + \epsilon
 \end{equation}
 
-where \textbf{y} is a vector of response variables, \textbf{X} a matrix of explanatory variables, $\bm{\beta}$ is a vector of regression coefficients, and $\bm{ \epsilon}$ represents the error terms. The errors, $\epsilon_{i}$, are considered independent and identically distributed as $N(0, \sigma^{2})$.
+where $\bm{\beta}$ is a vector of regression coefficients, and $\epsilon$ is some random noise distributed as $N(0, \sigma^{2})$. 
 
 Even though this model is useful for many situations, it has some limitations. For example, if the range of the $x$-values is $(-\infty, \infty)$, letting an $x$ approach infinity while everything else is kept constant makes also the corresponding $y$-value approach infinity (or minus infinity if $\beta$ is negative). Hence, if the range of $y$ should be restricted, the linear model is inappropriate. 
 
 Generalized linear models extends the framework of the general linear models, by allowing the response variable to come from several other distributions than the normal one. The response variable can now be distributed according to some exponential family, which are distributions on the form
 
 \begin{equation}
-    f(y_i;\theta_i) = \text{exp}\Big(\frac{y_i \theta_i - b(\theta_i)}{\phi} \cdot w_i + c(y_i,\phi,w_i)\Big),
+    f(y;\theta) = \exp\Big(\frac{y \theta - b(\theta)}{\phi} \cdot w + c(y,\phi,w)\Big),
 \end{equation}
 
-where $b(\theta_i)$ and $c(y_i,\phi,w_i)$ are known functions, $\theta_i$ is the canonical parameter, $\phi$ is a nuisance parameter and $w_i$ is a weight function. The expected value of the distribution, $\mathbf{E}[y_i] = \mu_i$ is related to the canonical parameter by,
+where $b(\theta)$ and $c(y,\phi,w)$ are known functions, $\theta$ is the canonical parameter, $\phi$ is a nuisance parameter and $w$ is a weight function. The expected value of the distribution, $\mathbf{E}[y] = \mu$ is related to the canonical parameter by,
 
 \begin{equation}
-    \mu_i = b'(\theta_i).
+    \mu = b'(\theta).
 \end{equation}
 
-An essential property of the GLM framework is that there is a specified functional relationship, $g$, between the linear predictor $\eta_i = \bf x_i^T \bm{ \beta}$ and this mean value.
+An essential property of the GLM framework is that there is a specified functional relationship, $g$, between the linear predictor $\eta = \bf x^T \bm{ \beta}$ and this mean value.
 
 The GLM framework can be summarized by the following three components:
 
@@ -46,116 +48,116 @@ The GLM framework can be summarized by the following three components:
 \item Response variable distributed as some exponential family
 
 \begin{equation}
-    y_{i} \sim f(y_i;\theta_i)
+    y \sim f(y;\theta)
 \end{equation}
 
-with expected value, $\mathbf{E}[y_i] = \mu_i$.
+with expected value, $\mathbf{E}[y] = \mu$.
 
 \item Linear predictor
 
 \begin{equation}
-    \eta_i = \bf x_i^T \bm{ \beta}
+    \eta = \bf x^T \bm{ \beta}
 \end{equation}
 
 \item Link function
 
 \begin{equation}
-    \eta_i = g(\mu_i)
+    \eta = g(\mu)
 \end{equation}
 
 \end{itemize}
 
-
-
-%Module pages from the GLM course (allowed as reference? Do I need reference here, or is this considered basic enough to not need a reference?)
-
-%Often the link function used is the \textit{canonical link function}. This refers to the 
-
-If the link function corresponds to functional relationship between the canonical parameter and the mean,
+If the link function maps also the mean of the response variable to the canonical parameter,
 
 \begin{equation}
-\theta_i = g(\mu_i),
+\theta = g(\mu),
 \end{equation}
 
-it is referred to as the \textit{canonical link function}. This link function is often chosen, as it comes with some advantageous properties.
+it is referred to as the \textit{canonical link function}. It then follows that $\theta=\eta$. The canonical link function is often chosen, as it comes with some advantageous properties when it comes to inferring the canonical parameters of the GLM. So the pdf of a GLM with canonical link function can be written
 
-The general linear model, given by equation \ref{eq:general}, is one special case of GLMs. It can be defined in the GLM framework, by specifying $y_i$ as a normal distributed variable with mean $\mu_i$, and having the identity link function. That is
+\begin{equation}
+   f(y|\bm{\beta}) =  \exp\Big(\frac{y  {\bf x^T} {\bm{ \beta}} - b( \bf x^T \bm{ \beta})}{\phi} \cdot w + c(y,\phi,w)\Big).
+\end{equation}
+
+The linear model, given by equation \ref{eq:general}, is one special case of GLMs. It can be defined in the GLM framework, by specifying $y$ as a normal distributed variable with mean $\mu$, and having the identity link function, which is the canonical link function associated to the normal distribution. That is
 
 \begin{equation}
 \begin{split}
-y \sim N(\mu_i, \sigma^2) \\
-\mu_i = \eta_i = \bf x_i^T \bm{ \beta}
+y \sim N(\mu, \sigma^2) \\
+\mu = \eta = \bf x^T \bm{ \beta}.
 \end{split}
 \end{equation}
 
 \subsubsection{Bernoulli GLM}
+\label{sec:Bernoulli}
 
-In a Bernoulli process the response variable, $y_i$, takes the value 1 with a probability $\mu_i$, and 0 with the probability $1-\mu_i$. The corresponding probability density function is,
+In a Bernoulli process the response variable, $y$, takes the value 1 with a probability $\mu$, and 0 with the probability $1-\mu$. The corresponding probability density function is,
 
 \begin{equation}
 \begin{split}
-    f(y_i|\mu_i) = Ber(\mu_i) = \mu_i^{y_i}(1-\mu_i)^{1-y_i}\\
-    = \text{exp} ( y_i  \text{log}\big(\frac{\mu_i}{1-\mu_i}\big) + \text{log}(1-\mu_i)),
+\label{eq:B}
+    f(y|\mu) = Ber(\mu) = \mu^{y}(1-\mu)^{1-y}\\
+    = \text{exp} ( y  \text{log}\big(\frac{\mu}{1-\mu}\big) + \text{log}(1-\mu)),
 \end{split}
 \end{equation}
 
-where the bottom line shows that it corresponds to an exponential family. Hence, it can be modelled with GLM. The expected value of $y_i$ is given by
+where the bottom line shows that it corresponds to an exponential family.Given stochastic component set to be Bernoulli, a Bernoulli GLM is defined by the choice of a suitable link function. As explained above, the link function relates the linear predictor $\eta$ with the mean of the response variable y, which for the Bernoulli process in equation \ref{eq:B} is 
 
 \begin{equation}
-\mathbf{E} [y_i] = \sum_{y_i = 0,1} y_i \times \mu_i^{y_i}(1-\mu_i)^{1-y_i} = \mu_i
+\mathbf{E} [y] = \sum_{y = 0,1} y \times \mu^{y}(1-\mu)^{1-y} = \mu
 \end{equation}
 
 A probability parameter can only take value in $[0,1]$. Thus the inverse of the link function, the \textit{response function}, have to be a mapping from the real line to $[0,1]$. The most common is the \textit{logit} link function, which is the canonical link in this case,
 
 \begin{equation}
-    \eta_i = g(\mu_i) = ln(\frac{\mu_i}{1-\mu_i}) \Leftrightarrow 
-    \mu_i = h(\eta_i) = \frac{\exp(\eta_i)}{1+\exp(\eta_i)}
+    \eta = g(\mu) = ln(\frac{\mu}{1-\mu}) \Leftrightarrow 
+    \mu = \frac{\exp(\eta)}{1+\exp(\eta)}
 \end{equation}
 
 
-\subsection{Maximum likelihood inference}
+\subsection{Maximum likelihood inference via gradient decent}
 \label{sec:Inference}
 
-Typically the $\bm {\beta}$-values in the linear predictor are unknown, and the goal is to estimate these. Given the input and response variables, one wants to find the $\bm {\beta}$-values that fits best to this data. This is done by searching for the values that makes the observed data most likely, namely those that maximizes the likelihood:
+Given $n$ samples of the explanatory and response variables $\{(y_i,\mathbf{x}_i)\}_{i=1,...,n}$, the linear predictor coefficients $\bm {\beta}$ can be estimated by maximizing the likelihood of the data
 
 \begin{equation}
     L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta})
 \end{equation}
 
-For a Bernoulli distribution this is,
+For a Bernoulli GLM this is,
 
 \begin{equation}
-    L(\bm{\beta}) = \prod_{i=1}^{n} f(y_i |\bm{ \beta}) = \prod_{i=1}^{n} \mu_i^{y_i}(1-\mu_i)^{1-y_i}
+    L(\bm{\beta}) = \prod_{i=1}^{n} \mu_i(\bm{\beta})^{y_i}(1-\mu_i(\bm{\beta}))^{1-y_i}
 \end{equation}
 
-The logarithm of the likelihood has the same maximizing $\bm{\beta}$-values, and is often easier to operate with. The loglikelihood is derived as,
+It is often convenient to work with the logarithm of the likelihood, which is maximized by the same $\bm{\beta}$-values as the likelihood. The loglikelihood for a Bernoulli GLM is
 
 \begin{equation}
 \begin{split}
-    l(\bm{\beta}) = \log \prod_{i=1}^{n} (\mu_i^{y_i}(1-\mu_i)^{1-y_i})  =
-    \sum_{i=1}^n log (\mu_i^{y_i}(1-\mu_i)^{1-y_i})\\ =  \sum_{i=1}^{n} y_i \log(\frac{\mu_i}{1-\mu_i}) + \log(1-\mu_i)
+    l(\bm{\beta}) = \log \prod_{i=1}^{n} (\mu_i(\bm{\beta})^{y_i}(1-\mu_i(\bm{\beta}))^{1-y_i})  =
+    \sum_{i=1}^n log (\mu_i(\bm{\beta})^{y_i}(1-\mu_i(\bm{\beta}))^{1-y_i})\\ =  \sum_{i=1}^{n} y_i \log(\frac{\mu_i(\bm{\beta})}{1-\mu_i(\bm{\beta})}) + \log(1-\mu_i(\bm{\beta}))
 \end{split}
 \end{equation}
 
-Then, substituting in $\mu_i = \frac{exp(\eta_i)}{1+exp(\eta_i)}$, one arrives at
+Then, for the canonical link function, $\mu_i(\bm{\beta}) = \frac{\exp(\eta_i)}{1+\exp(\eta_i)} = \frac{\exp({\bf x_i^T} \bm{ \beta})}{1+\exp({\bf x_i^T} \bm{ \beta})}$, one arrives at
 
 \begin{equation}
-    l(\bm{\beta}) = \sum_{i=1}^{n} y_i \eta_i - log(1 + exp(\eta_i) = \sum_{i=1}^n y_i{\bf x_i^T} \bm{ \beta} - ln(1 + exp(\bf x_i^T \bm{ \beta}))
+    l(\bm{\beta}) = \sum_{i=1}^{n} y_i \eta_i - \log(1 + \exp(\eta_i) = \sum_{i=1}^n y_i{\bf x_i^T} \bm{ \beta} - ln(1 + \exp(\bf x_i^T \bm{ \beta}))
 \end{equation}
 
-The goal is to find the parameters that maximizes the likelihood. For a convex problem inference can be done using gradient based iterative methods. The idea of such optimization algorithms is to searches in the parameter space in the direction of positive gradient to arrive at a maximum. One famous such method is the Newton method. Generally, for a function $f(x)$, one starts by choosing some initial guess $x^{(0)}$, and hence update the approximation in every iteration by
+The goal is to find the parameters that maximizes the likelihood. For a convex problem, which is always the case for a GLM with a canonical link function, inference can be done using gradient based iterative methods. The idea of such optimization algorithms is to search in the parameter space in the direction of negative gradient to arrive at a mimima. Or equivalently, for a concave function one searches in the positive direction for the maximum. One famous such method is the Newton method. Generally, for a function $f(x)$ to be maximized in the variable x, one starts by choosing some initial guess $x^{(0)}$, and hence update the approximation in every iteration by
 
 \begin{equation}
     x^{(i+1)} = x^{(i)} - \frac{f'(x^{(i)})}{f''(x^{(i)})}
 \end{equation}
 
-The first and second derivative of a loglikelihood function is called the score function and the observed Fisher information matrix.
+It's easy to see that the value of x at which this algorithm converges satisfies f'(x)=0. The Newton method for maximum likelihood inference then entails computing the first and second derivatives of the loglikelihood called respectively score function and observed Fisher Information.
 
 The score function is the vector of partial derivatives of the loglikelihood. In the Bernoulli case the score function can be derived as follows
 
 \begin{equation}
 \label{eq:score}
-s(\bm{\beta}) = \sum_{i=1}^{n}s_i(\bm{\beta}) = \sum_{i=1}^{n} \frac{\partial l_i(\bm{\beta})}{\partial \bm{\beta}} = \sum_{i=1}^{n} {\bf x_i} \Big ( y_i - \frac{exp({\bf x_i^T} \bm{ \beta})}{1 + exp({\bf x_i^T} \bm{ \beta})}\Big )
+s(\bm{\beta}) = \sum_{i=1}^{n}s_i(\bm{\beta}) = \sum_{i=1}^{n} \frac{\partial l_i(\bm{\beta})}{\partial \bm{\beta}} = \sum_{i=1}^{n} {\bf x_i} \Big ( y_i - \frac{\exp({\bf x_i^T} \bm{ \beta})}{1 + \exp({\bf x_i^T} \bm{ \beta})}\Big )
 \end{equation}
 
 The observed Fisher information matrix is defined as 
@@ -167,14 +169,14 @@ The observed Fisher information matrix is defined as
 which for the Bernoulli case corresponds to
 
 \begin{equation}
-    H(\bm{\beta}) = \sum_{i=1}^{n} {\bf x_i x_i^T} \pi_i (1-\pi_i)
+    H(\bm{\beta}) = \sum_{i=1}^{n} {\bf x_i x_i^T} \pi_i(\bm{\beta}) (1-\pi_i(\bm{\beta}))
 \end{equation}
 
 Hence, the Newton method for estimating $\beta$, is the iteration scheme
 
 \begin{equation}
 \label{eq:Newton}
-    \bm{\beta}^{(i+1)} = \bm{\beta}^{(i)} + (H(\bm{\beta}^{(i)}))^{-1} s(\bm{\beta}^{(i)}
+    \bm{\beta}^{(i+1)} = \bm{\beta}^{(i)} + (H(\bm{\beta}^{(i)}))^{-1} s(\bm{\beta}^{(i)})
 \end{equation},
 
 where $H(\bm{\beta}^{(i)})^{-1}$ is the matrix inverse of the observed Fisher information matrix.
@@ -184,25 +186,22 @@ where $H(\bm{\beta}^{(i)})^{-1}$ is the matrix inverse of the observed Fisher in
 \section{Bayesian framework}
 \label{BayesianFW}
 
-Given some data sample ${\bf x}$ from a parametric distribution $P(x;\theta)$ where the parameter, $\theta$, is unknown, the posterior distribution of the parameter given the data can be expressed according to Bayes theorem, as follows.
+The Bayesian framework allows to go beyond maximum likelihood inference by incorporating prior knowledge on the model parameters through the prior distribution. Given some data sample ${\bf x}$ modelled with the distribution $P(x;\theta)$, the posterior distribution of the parameter given the data can be expressed according to Bayes theorem, as follows.
 
 \begin{equation}
+\label{eq:b}
     P(\theta | {\bf x}) = \frac{P({ \bf x}|\theta)P(\theta)}{P({\bf x})}
 \end{equation}
 
-$P({\bf x})$ is the likelihood that the data would be observed given $\theta$. $P(\theta)$ is the prior distribution of $\theta$, and expresses some knowledge one has of $\theta$ before seeing the data. $P({\bf x}$ is the marginal distribution of the data, and can be expressed as,
+$P({\bf x}|\theta)$ is the likelihood that the data would be observed given $\theta$. $P(\theta)$ is the prior distribution of $\theta$, and expresses some knowledge one has of $\theta$ before seeing the data. $P({\bf x})$ is the marginal distribution of the data, and can be expressed as,
 
 \begin{equation}
     P({\bf x}) = \int P({\bf x},\theta)d\theta.
 \end{equation}
 
-This is typically too complicated to solve, and can make it is impossible to sample directly from the posterior distribution. However, given the data $x$, $P(x)$ is a constant value, so the posterior distribution is proportional to the numerator, $P(x|\theta)P(\theta)$. 
+This is typically too complicated to solve, and can make it hard to sample directly from the posterior distribution. Monte Carlo techniques, introduced in section 3.3, circumvent this problem by exploiting the proportionality of the posterior $P(\theta\vert x)$ to the numerator of equation \ref{eq:b} at fixed data.
 
-\begin{equation}
-    P(\theta | {\bf x}) \propto P({\bf x}|\theta)P(\theta)
-\end{equation}
-
-The relative amount that the likelihood and the prior contributes to the posterior depends on their variances and the size of the data sample. If the prior knowledge is that the parameter exists in some narrow window, and this prior knowledge is very certain, the variance in the prior distribution can be set very low. This makes the prior more dominating than if its variance was higher. As the size of the data set grows, the relative contribution of the likelihood function increases. 
+The relative amount that the likelihood and the prior contributes to the posterior depends on their variances and the size of the data sample. If the prior knowledge is that the parameter exists in some narrow window, and this prior knowledge is very certain, the prior distribution will be very peaked. This makes the prior more dominating than if its variance was higher. As the size of the data set grows, the relative contribution of the likelihood function typically  increases. 
 
 
 
