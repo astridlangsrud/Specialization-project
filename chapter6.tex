@@ -13,6 +13,7 @@
     \item The method works well if we have enough data. This is shown by the 10000 trials variants in test case 2. It is also indicated that the method can capture dynamic trends if the weights are slowly changing and recordings are made for a long time.
     \item As little information is contained in the prior, few data points give bad results, as expected. As indicated in the histograms from case 1, even with 100 data points for a single weight it is not unlikely that the ML value is calculated to above 0.9 or below 0.5 for true value 0.7. So inferring a weight change from 0.7 to 0.8 would be hard. So for a smoothness prior, the best we can hope for is that it stabilizes around the mean weight. 
     \item Another problem with the method is that since all weights are drawn independently but simultaneously, the probability of drawing a weight trajectory that is considerably better than the previously accepted one gets very little when the weight trajectory is large. If we define success as the event that a weight is drawn to a better position than in the previous iteration, the success rate is 0.5. Then, for the case of 400 time steps, the probability of at least 225 successes is less than one percent. This is the problem in the first plot of case 3.  
+    \item Something with running time of my methods?
 \end{itemize}
 In short the important points to note from the results is that is possible to infer a time varying synaptic connection from spike data, but with only a smoothness prior the method is dependent on having enough data. 
 
