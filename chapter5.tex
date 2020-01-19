@@ -3,11 +3,11 @@
 \chapter{Results}
 \label{ch:results}
 
-The results from performing the test cases described in section \ref{Method} are presented in this chapter. Section \ref{sec:CASE1_r}, \ref{sec:CASE2_r} and \ref{sec:CASE3_r}, gives the results from test case 1, 2 and 3 respectively. Plots of errors and visualizations of the estimates are given. The focus in this project has been to investigate how well the methods for inferring weight perform, and not to study any actual weights. Therefore, any detailed description of what the inferred weights values are is not included.
+The results from performing the test cases described in section \ref{Method} are presented in this chapter. Section \ref{sec:CASE1_r}, \ref{sec:CASE2_r} and \ref{sec:CASE3_r}, gives the results from test case 1, 2 and 3 respectively. Plots of errors and visualizations of the estimates are given. 
 
 \section{CASE 1}
 \label{sec:CASE1_r}
-50 iterations Newton iterations for a constant true weight, $w_{21} = 0.7$, for $T=1000$ and initial guess $w_{12}^{(0)} = 2$ was performed according to the description in section \ref{sec:CASE1}. The estimated weigh after the last iteration was $w_{21}^{(50)}=0.679$. The left plot in figure \ref{fig:Newton} illustrates the likelihood function, and the points for the initial guess, and the estimated weight after 1, 2, 3 and 50 iterations. The right plot shows the estimated weigh at every iteration.
+50 Newton iterations for a constant generative weight, $w_{21} = 0.7$, for $T=1000$ and initial guess $w_{12}^{(0)} = 2$ were performed according to the description in section \ref{sec:CASE1}. The estimated weigh after the last iteration was $w_{21}^{(50)}=0.679$. The left plot in figure \ref{fig:Newton} illustrates the likelihood function, and the points for the initial guess, and the estimated weight after 1, 2, 3 and 50 iterations. The right plot shows the estimated weigh at every iteration.
 
 %The learning was on purpose set slower, in order to give a better visual representation. 
 
@@ -20,7 +20,7 @@ The results from performing the test cases described in section \ref{Method} are
     \includegraphics[scale=0.40]{fig/Step_1_it.png}
 \end{figure}
 
-One can conclude that the algorithm converges by visual inspection of the plots. Also, the estimated weight in the five last iterations are equal up to seven decimals. To arrive at two decimals precision it took 18 iterations. However, the inferred weight and the true weight differ by $w_{21} - w_{21}^{(50)} = 0.021$. This difference is not due to any failure of the algorithm to find the maximum likelihood, but rather due to the fact that for a finite data sample the actual maximum likelihood value in the data might differ from the underlying parameter that generated them. This will improve as the size of the data set increases. To illustrate this point, the algorithm was run 1000 times each for $T \in \{ 100,1000,10000\}$. Histograms for the maximum likelihood estimates is shown in figure \ref{fig:ML_hist}. By looking at the axes it is clear that in all cases the estimates are centered around the true value, but for a bigger sample the variance in the estimates are smaller. 
+One can conclude that the algorithm converges by visual inspection of the plots. Also, the estimated weight in the five last iterations are equal up to seven decimals. To arrive at two decimals precision it took 18 iterations. However, the inferred weight and the generative weight differ by $w_{21} - w_{21}^{(50)} = 0.021$. This difference is not due to any failure of the algorithm to find the maximum likelihood, but rather due to the fact that for a finite data sample the actual maximum likelihood value in the data might differ from the underlying parameter that generated them. This will improve as the size of the data set increases. To illustrate this point, the algorithm was run 1000 times each for $T \in \{ 100,1000,10000\}$. Histograms for the maximum likelihood estimates is shown in figure \ref{fig:ML_hist}. Although in all cases the estimates are centered around the true value,  the variance in the estimates are smaller for a bigger sample. 
 
 \begin{figure}[hbt!]
     \centering
@@ -33,7 +33,7 @@ One can conclude that the algorithm converges by visual inspection of the plots.
 
 \section{CASE 2}
 \label{sec:CASE2_r}
-The procedure described in section \ref{sec:CASE2}, and summarized in algorithm \ref{alg:M-H} was performed with 3000 iterations, for various number of spike trains, $ \{1,10,100,1000,10000 \}$. Firstly, the initial guess was set equal to the true weights, namely $\bf w_{12}^{(0)} = \bf w_{12}$. This gives a starting error of zero. Figure \ref{fig:Case2_1} shows an example of normalized root mean squared errors over iterations for the different number of trials. Here the generative weight trajectory, as exemplified in figure \ref{fig:Generative} was the same for all the instances, and the initial guess was set to be the true weights. 
+The procedure described in section \ref{sec:CASE2}, and summarized in algorithm \ref{alg:M-H} was performed with 3000 iterations, for various number of spike trains, $ \{1,10,100,1000,10000 \}$. Firstly, the initial guess was set equal to the generative weights, namely $\bf w_{12}^{(0)} = \bf w_{12}$. This gives a starting error of zero. Figure \ref{fig:Case2_1} shows an example of normalized root mean squared errors over iterations for the different number of trials. Here the generative weight trajectory, as exemplified in figure \ref{fig:Generative} was the same for all the instances, and the initial guess was set to be the true weights. 
 
 
 \begin{figure}[hbt!]
@@ -48,7 +48,7 @@ This shows that for the lower number of trials the estimation jumps around, wher
 This procedure was repeated 100 times for each number of trials. The underlying weights were now drawn new for each replicate. Figure \ref{fig:case2_avg} shows the mean of the rnMSE values at each iteration, with variance bars around it. 
 
 \begin{figure}[hbt!]
-\caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to the true weights.}
+\caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to the generative weights.}
 \label{fig:case2_avg}
     \centering
     \includegraphics[scale=0.6]{Mean_plot_std.png}
@@ -75,7 +75,7 @@ Next, the initial guess for the iterations is set to be a random walk around 1. 
     \includegraphics[scale=0.6]{MSE_starting_away.png}
 \end{figure}
 
-As clear from the plots, the relaxation time for the learning is dependent on the number of trials. For initial guess equal to the generative weights, saturation happens after around 300 iterations for 10000 trials, and around 2500 iterations for 1000 trials. For less number of trials the solution is still moving away from the solution after 3000 iterations. Figure \ref{fig:MSE2} show that also for 100 trials there is a slow movement in the correct direction. The figures also show that the solution is more stable for the higher number of trials, since the variance bars are thinner.  
+As clear from the plots, the relaxation time for the learning is dependent on the number of trials. For initial guess equal to the generative weights, saturation happens after around 300 iterations for 10000 trials, and around 2500 iterations for 1000 trials. For smaller number of trials the solution is still moving away from the solution after 3000 iterations. Figure \ref{fig:MSE2} show that also for 100 trials there is a slow movement in the correct direction. The figures also show that the solution is more stable for the higher number of trials, since the variance bars are thinner.  
 
 To visualize what is happening during the course of the iterations figure \ref{fig:trajectories} displays the how the last accepted weight trajectory to the sample after 100,200,300,400,500 and 1000 iterations looks like, for initial guess a random walk around 1 and 10000 trials. 
 
@@ -118,7 +118,7 @@ As seen the starting trajectory used here is quite flat. One could think that th
 
 \section{CASE 3}
 \label{sec:CASE3_r}
-First the variant where the weight for all time steps are drawn individually were performed. This was tried with various values for the variance in the prior and proposal distribution. For a low value of the prior variance compared to the proposal variance, no new weight trajectories were accepted in the algorithm, so the estimation just stays where it starts. If the relative variance is large enough for weight trajectories to be accepted, it does not move towards the correct solution, and the error increases with iteration. One example of the true, initial and inferred weights after 3000 iterations is shown in figure \ref{fig:400_weights}. 
+First the variant where the weight for all time steps are drawn individually was performed. This was tried with various values for the variance in the prior and proposal distribution. For a low value of the prior variance compared to the proposal variance, no new weight trajectories were accepted in the algorithm, so the estimation just stays where it starts. If the relative variance is large enough for weight trajectories to be accepted, it does not move towards the correct solution, and the error increases with iteration. One example of the generative, initial and inferred weights after 3000 iterations is shown in figure \ref{fig:400_weights}. 
 
 
 \begin{figure}

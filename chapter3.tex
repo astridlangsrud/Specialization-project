@@ -219,14 +219,13 @@ The relative amount that the likelihood and the prior contributes to the posteri
 %Let $\{t_0, t_1, ..., t_n\}$ be a sequence of equally spaced time steps in [0,T] and let $s_i(t_j) \in \{0,1\}$ be the random event taking value 1 if $N_i$ spikes in the time interval $(t_{j-1}, t_{j})$, and 0 otherwise. If the time intervals are so small that the probability of covering more then one spike is negligible, each time interval can be regarded as a Bernoulli process with some probability, $p$, of spiking. This $p$ can be dependent on for instance the spike history of the other neurons, and the weight matrix.  
 
 \section{Inference with MCMC}
-\label{Bayesian}
-
-A Markov chain Monte Carlo (MCMC) techniques utilizes, as the name suggests, a combination of Markov chains with Monte Carlo sampling. A Markov chain is a sequence of events, typically time indexed, that satisfies the Markov property, which says that future events only depends on the present state and not on the past. Monte Carlo techniques is the use of random sampling from a distribution to make numerical estimates. However, this requires that we can sample from the distribution, which is not always straight forward. So the idea of MCMC to construct a Markov chain that has a limiting distribution equal to the one we want to sample from, and this way obtain the sample we are looking for. Metropolis-Hastings is one of several algorithms that does this.
-
-\subsection{Metropolis-Hastings algorithm}
 \label{Metropolis}
 
-Assume we want to sample from a target distribution $p(x)$, which cannot be sampled from directly. Also assume that $Q(x|x')$ is a parametric distribution that is possible to draw direct samples from and that satisfies the following two properties
+Inference in the Bayesian framework is often performed using Markov Chain Monte Carlo methods (MCMC). MCMC is a class of algorithm for sampling from a probability distribution, which in Bayesian inference is the posterior distribution over the parameters. A Markov chain Monte Carlo (MCMC) techniques utilizes, as the name suggests, a combination of Markov chains with Monte Carlo sampling. A Markov chain is a sequence of events, typically time indexed, that satisfies the Markov property, which says that future events only depends on the present and not on the past. Monte Carlo techniques is the use of random sampling from a distribution to make numerical estimates. However, this requires that we can sample from the distribution, which is not always straight forward. So the idea of MCMC to construct a Markov chain that has a limiting distribution equal to the one we want to sample from, and this way obtain the sample we are looking for. Metropolis-Hastings is one of several MCMCs.
+
+\subsection{Metropolis-Hastings algorithm}
+
+Assume we want to sample from a target distribution $p(x)$, which cannot be sampled from directly. Also assume that $Q(x|x')$ is conditional distribution of $x$ given $x'$ that is possible to draw direct samples from and that satisfies the following two properties
 
 \begin{enumerate}
     \item $Q(x|x') = Q(x'|x)$
@@ -241,7 +240,8 @@ Then the Metropolis-Hastings procedure for sampling form $p(x)$ by using $Q$ as 
 \State Set starting value $x^0$
 \For {$i=0,1,2,\ldots$}
 \State Draw x' from $Q(x'|x^i)$
-\State $x^{i+1} = \begin{cases} x' \text{ with probability } min\{ 1, \frac{p(x')}{p(x^i)} \}\\ x^i \text{ with probability } 1-min\{ 1, \frac{p(x')}{p(x^i)} \}
+\State Compute $\alpha = \frac{p(x')}{p(x^i)}$
+\State $x^{i+1} = \begin{cases} x' \text{ with probability } min\{ 1, \alpha \}\\ x^i \text{ with probability } 1-min\{ 1, \alpha \}
 \end{cases}$
 \EndFor
 \end{algorithmic}
@@ -250,7 +250,9 @@ Then the Metropolis-Hastings procedure for sampling form $p(x)$ by using $Q$ as 
 The resulting sequence $\{  x^0, x^1, x^2,... \}$ is then a Markov chain with transition probability
 
 \begin{equation}
-    T(x^{i+1} = x|x^i) = min \Big \{ 1, \frac{p(x)}{p(x^i)} \Big \} Q(x|x^i).
+    T(x^{i+1} = x|x^i) = \begin{cases} min \Big \{ 1, \frac{p(x)}{p(x^i)} \Big \} Q(x|x^i) \hspace{1cm} \text{if } x\neq x^i\\
+    1-\sum_{x \neq x^i} min \Big \{ 1, \frac{p(x)}{p(x^i)} \Big \} Q(x|x^i) \hspace{1 cm} \text{if } x=x^i.
+\end{cases}
 \end{equation}
 
 It can be shown that the reversibility condition, 
@@ -259,7 +261,7 @@ It can be shown that the reversibility condition,
     p(x)T(x'|x) = p(x')T(x|x'),
 \end{equation} 
 
-is satisfied, which means that $p(x)$ is a stationary distribution of the Markov chain. Hence, for some index $n$, we have that $\{x_n, x_{n+1}, x_{n+2},...\}$ is an approximate sample from $p(x)$.
+is satisfied, which implies that $p(x)$ is a stationary distribution of the Markov chain. Hence, for some burning time $n$, we have that $\{x_n, x_{n+1}, x_{n+2},...\}$ is an approximate sample from $p(x)$.
 
  %This can be done if we cannot sample from a distribution directly. This means that in collecting sample values $\{\theta_0, \theta_1, \theta_2,...\}$ for an unknown parameter $\theta$, the sample $\{\theta_m, \theta_{m+1}, \theta_{m+2},...\}$ will approximately correspond to a random sample from the posterior distribution for $m$ large enough. 
 
@@ -279,7 +281,7 @@ is satisfied, which means that $p(x)$ is a stationary distribution of the Markov
 \section{Modelling synaptic plasticity}
 \label{sec:SP}
 
-Decades of experimental research have revealed certain relations for how spiking of neurons affects the strength of connectivity between them. There are various suggested models, and common to all of them is that they rely on the Hebbian theory. In simple manners the theory says that if firing of neuron A frequently induce firing of neuron B, then the connection between the two neurons will strengthen (\cite{Hebb}). The functional expressions that describe this synaptic plasticity is referred to as \textit{learning rules}. Classical learning rules for LTP and LTD, considers the instantaneous firing rates of the pre- and postsynaptic neurons. The somewhat newer model described in Linderman, the \textit{spike-timing-dependent plasticity} (STDP) learning rule, takes a different approach. It examine individual spikes and involves a consideration of the time interval between firing of the two neurons. This is the variant to be considered in this project, and the matemathical formulations is presented in section \ref{sec:LR}.
+Decades of experimental research have revealed certain relations for how spiking of neurons affects the strength of connectivity between them. There are various suggested models, and common to all of them is that they rely on the Hebbian theory. In simple manners the theory says that if firing of neuron A is frequently followed by firing of neuron B, then the connection between neuron A and B will strengthen (\cite{Hebb}). The functional expressions that describe this synaptic plasticity is referred to as \textit{learning rules}. Classical learning rules for LTP and LTD, considers the instantaneous firing rates of the pre- and postsynaptic neurons. In the \textit{spike-timing-dependent plasticity} (STDP) learning rule, instead the change in connectivity depends on single spikes of pre- and postsynaptic neurons at short lags, inspired by \cite{Linderman}. This is the variant to be considered in this project, whose mathematical formulations is presented in section \ref{sec:LR}.
 
 \subsection{STDP rules}
 \label{sec:LR}
@@ -304,7 +306,7 @@ In the STDP-rule the synaptic connection between two neurons is updated accordin
     \end{split}
 \end{equation}
 
-where $F_A(t)$ is a binary variable equal to 1 if neuron A fires at time t and 0 otherwise. The parameters $\tau_+$ and $\tau_-$ affects the rage of time intervals in which the firing contributes to connection updates. Decreasing the $\tau$ value corresponds to shrinking the window for where firing has significant impact on the plasticity. According to \cite{Song} experiments have shown that the value for $\tau_+$ is in the order of ten milliseconds. Some experiments suggest a value for $\tau_-$ of the same size, while other suggests a value somewhat larger. The parameters $A_+$ and $A_-$ scales the size of the updates, and corresponds to the maximum value of connectivity updates when $\Delta t$ is small. For a "stable competitive synaptic modification", it is necessary that $A_-\tau_- > A_+\tau_+$, \cite{Song}. Therefore, if the two $\tau$-values are set equal, the value for $A_-$ has to be larger than $A_+$.
+where $F_A(t)$ is a binary variable equal to 1 if neuron A fires at time t and 0 otherwise. The parameters $\tau_+$ and $\tau_-$ control the scale of lags in which the firing contributes to connection updates. Decreasing the $\tau$ value corresponds to shrinking the window for where firing has significant impact on the plasticity. According to \cite{Song} experiments have shown that the value for $\tau_+$ is in the order of ten milliseconds. Some experiments suggest a value for $\tau_-$ of the same size, while other suggests a value somewhat larger. The parameters $A_+$ and $A_-$ scales the size of the updates, and corresponds to the maximum value of connectivity updates when $\abs (t-t')$ is small. For a "stable competitive synaptic modification", it is necessary that $A_-\tau_- > A_+\tau_+$, \cite{Song}. Therefore, if the two $\tau$-values are set equal, the value for $A_-$ has to be larger than $A_+$.
 
 A slightly more complicated variant is the multiplicative STDP rule, which looks like
 
