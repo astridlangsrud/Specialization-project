@@ -3,9 +3,9 @@
 \chapter{Background and theory}
 \label{ch:theory}
 
-The goal of this project is to characterize the dynamics of synaptic connections based on the data material from the lab experiments. Since we know that simultaneous spiking of the presynaptic and postsynaptic neuron affects the synaptic connection, it is relevant to study the changing of neuronal spike rates in relation to the spiking of the surrounding neurons. For one neuron at one time step, the situation of spiking or not spiking can be considered as a Bernoulli process, with some time dependent spiking rate $\lambda (t)$. This spiking rate can be expressed function of the spike history of the neuron itself and of the other neurons, which can be modelled using a Generalized Linear Model (GLM). The relevant statistical theory is described in section \ref{sec:stats}. Section \ref{Intro_GLM} provides a general introduction to the GLM framework and presents how it looks like for a Bernoulli distribution. In section \ref{sec:Inference} it is explained how inference in GLMs can be made according to the maximum likelihood and gradient based methods. The source used for this section is the book \textit{Regression} from Springer. 
+The goal of this project is to develop a model for characterizing the dynamics of synaptic connections based on data material described in section \ref{Lab}. As described in section \ref{NandC}, the synaptic strength is affected by simultaneous spiking of the presynaptic and postsynaptic neuron. Therefore, it is relevant to study the changing of neuronal spike rates in relation to the spiking of the surrounding neurons. A way to achieve this is to model the activity with a Generalized Linear Model. In a short time interval, the situation of spiking or not spiking for one neuron can be considered as a Bernoulli process, with some time dependent spiking rate $\mu (t)$. This spiking rate can be expressed function of the spike history of the neuron itself and of the other neurons in the network. The relevant statistical theory is described in section \ref{sec:stats}. Section \ref{Intro_GLM} provides a general introduction to the GLM framework and presents how it looks like for a Bernoulli distribution. In section \ref{sec:Inference} it is explained how inference in GLMs can be made according to the maximum likelihood and gradient based methods. The source used for this section is the book \textit{Regression} from Springer. 
 
-Gradient based methods with maximum likelihood works well if the problem is convex and enough information is stored in the data. If we have a system with stationary connectivity, this approach is suitable. For a network of N neurons with dynamical connections over T time steps, the number of parameters is of $O(N^2 \times T)$, whereas the number of data points is of $O(N \times T)$. This means that in absence of additional constraints on the connectivity the system with dynamical weights is severely undersampled and thus maximum likelihood inference as presented in section \ref{sec:Bernoulli} is not feasible. Fortunately the biological system we are modelling in this project, a plastic neuronal network, instructs us on reasonable constraints to the problem, starting from auto-correlations of the synaptic connections and synaptic plasticity rules. It follows then naturally to incorporate this prior knowledge on the model parameters into the inference process by taking a Bayesian approach. A description of the Bayesian framework is given in section \ref{BayesianFW}. Including prior distributions typically do not preserve the convexity of the problem, so we have to resort to Monte-Carlo techniques to characterize the posterior. The Metropolis-Hastings algorithm is chosen as a starting point. The background theory for this is provided in section \ref{Metropolis}, where the information is gathered from the source \cite{MC}.
+For a system of N neurons with a constant stationary connectivity, the number of unknown parameters is of $O(N^2)$, whereas the size of the data set is of $O(N^2 \times T)$, where $T$ refers to the number of time steps. For $T$ big enough, this gives a convex problem, which can be examined by using gradient based methods with maximum likelihood. On the contrary, if the connections vary with time, the number of parameters to infer grows to $O(N^2 \times T)$, while the data size remains the same. This means that in absence of additional constraints on the connectivity the system with dynamical weights is severely undersampled and thus maximum likelihood inference as presented in section \ref{sec:Bernoulli} is not feasible. Fortunately the biological system we are modelling in this project, a plastic neuronal network, instructs us on reasonable constraints to the problem, starting from auto-correlations of the synaptic connections and synaptic plasticity rules. It follows then naturally to incorporate this prior knowledge on the model parameters into the inference process by taking a Bayesian approach. A description of the Bayesian framework is given in section \ref{BayesianFW}. The involving of prior distributions typically do not preserve the convexity of the problem, so we have to resort to Monte-Carlo techniques to characterize the posterior. The Metropolis-Hastings algorithm is chosen as a starting point. The background theory for this is provided in section \ref{Metropolis}, where the information is gathered from the source \cite{MC}.
 
 The hypothesized models for connectivity dynamics are based on observations from lab experiments with neural networks. Section \ref{sec:SP} presents background for some general learning rules, those that are investigated in Linderman's paper. In this project the learning rules will only be used for generating neural activity in simulations, and not for inference. For my master thesis inferring dynamical connectivity using learning rules will be a main focus. Therefore, this background is included here to give some context, and to enable a discussion of the results with reference to the learning rules.
 
@@ -16,11 +16,11 @@ Generalized linear models (GLMs) are a class of regression models extending the 
 
 \subsection{Introduction}
 \label{Intro_GLM}
-Consider a system constituted by the variable Y, regarded as response (dependent) variable and a set of variables ${X_j}, {j=1,...,P}$, regarded as explanatory (independent). If $\{y,\mathbf{x}\}$ is a sample of the system, then in  linear regression the relationship between the dependent and independent variables is modeled by the linear function:
+Consider a system constituted by the variable Y, regarded as response (dependent) variable and a set of variables ${X_j}, {j=1,...,P}$, regarded as explanatory (independent). Let $\{y,\mathbf{x}\}$ is a sample of the system. Then, in linear regression the relationship between the dependent and independent variables is modeled by the linear function
 
 \begin{equation}
 \label{eq:general}
-    y = \bm{ \beta} \mathbf{x} + \epsilon
+    y = \bm{ \beta} \mathbf{x} + \epsilon,
 \end{equation}
 
 where $\bm{\beta}$ is a vector of regression coefficients, and $\epsilon$ is some random noise distributed as $N(0, \sigma^{2})$. 
@@ -73,7 +73,7 @@ If the link function maps also the mean of the response variable to the canonica
 \theta = g(\mu),
 \end{equation}
 
-it is referred to as the \textit{canonical link function}. It then follows that $\theta=\eta$. The canonical link function is often chosen, as it comes with some advantageous properties when it comes to inferring the canonical parameters of the GLM. So the pdf of a GLM with canonical link function can be written
+it is referred to as the \textit{canonical link function}. It then follows that $\theta=\eta$. The canonical link function is often chosen, as it comes with some advantageous properties for inferring the parameters of the GLM. So the pdf of a GLM with canonical link function can be written
 
 \begin{equation}
    f(y|\bm{\beta}) =  \exp\Big(\frac{y  {\bf x^T} {\bm{ \beta}} - b( \bf x^T \bm{ \beta})}{\phi} \cdot w + c(y,\phi,w)\Big).
@@ -101,7 +101,7 @@ In a Bernoulli process the response variable, $y$, takes the value 1 with a prob
 \end{split}
 \end{equation}
 
-where the bottom line shows that it corresponds to an exponential family.Given stochastic component set to be Bernoulli, a Bernoulli GLM is defined by the choice of a suitable link function. As explained above, the link function relates the linear predictor $\eta$ with the mean of the response variable y, which for the Bernoulli process in equation \ref{eq:B} is 
+where the bottom line shows that it corresponds to an exponential family. Given stochastic component set to be Bernoulli, a Bernoulli GLM is defined by the choice of a suitable link function. As explained above, the link function relates the linear predictor $\eta$ with the mean of the response variable y, which for the Bernoulli process in equation \ref{eq:B} is 
 
 \begin{equation}
 \mathbf{E} [y] = \sum_{y = 0,1} y \times \mu^{y}(1-\mu)^{1-y} = \mu
@@ -151,7 +151,7 @@ The goal is to find the parameters that maximizes the likelihood. For a convex p
     x^{(i+1)} = x^{(i)} - \frac{f'(x^{(i)})}{f''(x^{(i)})}
 \end{equation}
 
-It's easy to see that the value of x at which this algorithm converges satisfies f'(x)=0. The Newton method for maximum likelihood inference then entails computing the first and second derivatives of the loglikelihood called respectively score function and observed Fisher Information.
+It's easy to see that the value of x at which this algorithm converges satisfies $f'(x)=0$. The Newton method for maximum likelihood inference then entails computing the first and second derivatives of the loglikelihood called respectively score function and observed Fisher Information.
 
 The score function is the vector of partial derivatives of the loglikelihood. In the Bernoulli case the score function can be derived as follows
 

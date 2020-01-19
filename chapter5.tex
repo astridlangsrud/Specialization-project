@@ -93,7 +93,7 @@ Figure \ref{fig:trajectories} shows that the weight trajectory shifts rigidly ac
     \includegraphics[scale = 0.5]{fig/10000_1000_wa.png}
 \end{figure}
 
-It was also investigated what happens during the iterations for a low number of trials. From this is was observed that with little data, the accepted weight trajectory was either jumping around with a fluctuating error over iterations (for a big prior variance), or it was staying as a straight line close to the starting trajectory (for a small prior variance). For exemplification, figure \ref{fig:10st} illustrates the last accepted weight trajectory after 10000 iterations for prior variances in $\{ 0.1, 0.01, 0.001, 0.0001, 0.00001\}$. 10000 iterations was chosen to be sure that if any improvement towards the generative weights from the starting position took place, this would be shown. 
+It was also investigated what happens during the iterations for a low number of trials. From this is was observed that with little data, the accepted weight trajectory was either jumping around with a fluctuating error over iterations (for a big prior variance), or it was staying as a straight line close to the starting trajectory (for a small prior variance). For exemplification, figure \ref{fig:10st} illustrates the average of the last 500 accepted weight trajectories after 10000 iterations for prior variances in $\{ 0.1, 0.01, 0.001, 0.0001, 0.00001\}$. 10000 iterations was chosen to be sure that if any improvement towards the generative weights from the starting position took place, this would be shown. 
 
 \begin{figure}[P]
 \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 10000 iterations with 10 spike trains, and a prior variance of 0.1, 0.01, 0.001, 0.0001 and 0.00001}
@@ -129,19 +129,20 @@ First the variant where the weight for all time steps are drawn individually was
 \end{figure}
 
 
-Next, the same procedure was performed with dividing the time line into windows, and assuming constant weights within the windows. The initial guess was set to a random walk around 1. The result for dividing 300 seconds into 10 windows, and performing 3000 iterations is shown in figure \ref{fig:10bins}, with prior and proposal variance equal to 0.01, 0.005 and 0.0005.
+Next, the same procedure was performed with dividing the time line into windows, and assuming constant weights within the windows. The initial guess was set to a random walk around 1. A typical result for dividing 300 seconds into 10 windows, and performing 3000 iterations is shown in figure \ref{fig:10bins}, with prior and proposal variance equal to 1, 0.01, 0.005 and 0.0005.
 
 
 \begin{figure}[hbt!]
-\caption{True weights (orange), initial guess (green) and inferred weights (blue) for 10 bins and 3000 iterations. The prior and proposal distribution was 0.01 (top left), 0.005 (top right) and 0.0005 (bottom)}
+\caption{True weights (orange), initial guess (green) and inferred weights (blue) for 10 windows and 3000 iterations. The prior and proposal variance was 1 (top left), 0.01 (top right), 0.005 (bottom left) and 0.0005 (bottom right)}
 \label{fig:10bins}
     \centering
-    \includegraphics[scale=0.45]{fig/{10bins_0.01_0.01_s}.png}
-    \includegraphics[scale=0.45]{fig/{10bins_0.005_0.005_s}.png}\\
+    \includegraphics[scale=0.45]{fig/yeh.png}
+    \includegraphics[scale=0.45]{fig/{10bins_0.01_0.01_s}.png}\\
+    \includegraphics[scale=0.45]{fig/{10bins_0.005_0.005_s}.png}
     \includegraphics[scale=0.45]{fig/{10bins_0.0005_0.0005}.png}
 \end{figure}
 
-Figure \ref{fig:10bins} shows that $0.01$ and $0.005$ gives a reasonable result, whereas $0.0005$ forces a time continuity that is too strict to properly capture the dynamics.
+Figure \ref{fig:10bins} shows that $0.01$ and $0.005$ gives a reasonable result. The variance $0.0005$ forces a time continuity that is too strict to properly capture the dynamics. A variance of $1$ gives a too fluctuating result.
 
 This was done for 1, 5, 10 and 20 number of windows, with 30 replicates for each. The mean of the rnMSE with variance bars for these are presented in figure \ref{fig:MSE_bins}. Here the prior and proposal variance used was 0.005, which was chosen as it gave reasonable results. 
 
@@ -149,18 +150,22 @@ This was done for 1, 5, 10 and 20 number of windows, with 30 replicates for each
 \caption{Average rnMSE with variance bars of 30 replicates of the procedure of test case 3, with constraining to 1, 5, 10 and 20 time windows, with constant weight withing each window.}
 \label{fig:MSE_bins}
     \centering
-    \includegraphics[scale=0.6]{fig/MSE_bins_2.png}
+    \includegraphics[scale=0.8]{fig/MSE_bins_2.png}
 \end{figure}
 
 
-It is clear from figure \ref{fig:MSE_bins} that there is a trade-off between the constraint imposed by the time windows and the ability to update towards likelier parameters. With 10 windows the number of weights to infer is almost the same as in test case 2, where there was 9. However, it is interesting to note saturation is reached faster. The value of the rnMSE is bigger than in case 2. This is reasonable, as we set a constant weight in each window when the true weight is varying over the window. 
+It is clear from figure \ref{fig:MSE_bins} that there is a trade-off between the constraint imposed by the time windows and the ability to update towards likelier parameters, as 5 and 10 windows gets better results than 1 and 20 windows. With only one window, there is too little freedom to capture the decreasing weight, whereas with 20 windows it is starting to get too few data points in each window. 
 
-\begin{figure}[hbt!]
-\caption{Plot of average rnMSE of 20 replicates with 10 windows for prior variances equal to 1, 0.1, 0.02 and 0.005}
-\label{fig:prior_variance}
-    \centering
-    \includegraphics[scale=0.6]{fig/Prior_variance_plot.png}
-\end{figure}
+The variant with 10 is similar to test case 2, in the sense that the number of weights to infer is almost the same (there was 9 in test case 2). However, it is interesting to note saturation is here reached faster. In addition, the value of the rnMSE is bigger than in case 2. This is reasonable, as we set a constant weight in each window when the true weight is varying over the window. 
+
+
+
+%\begin{figure}[hbt!]
+%\caption{Plot of average rnMSE of 20 replicates with 10 windows for prior variances equal to 1, 0.1, 0.02 and 0.005}
+%\label{fig:prior_variance}
+    %\centering
+    %\includegraphics[scale=0.8]{fig/Prior_variance_plot.png}
+%\end{figure}
 
 
 \cleardoublepage
