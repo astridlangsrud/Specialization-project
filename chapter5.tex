@@ -24,9 +24,9 @@ One can conclude that the algorithm converges by visual inspection of the plots.
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[scale = 0.40]{fig/ML_100.png}
-    \includegraphics[scale = 0.40]{fig/ML_1000.png}
-    \includegraphics[scale = 0.40]{fig/ML_10000.png}
+    \includegraphics[scale = 0.40]{fig/19_hist_100.png}
+    \includegraphics[scale = 0.40]{fig/19_hist_1000.png}
+    \includegraphics[scale = 0.40]{fig/19_hist_10000.png}
     \caption{Histograms of estimated weighs from 1000 replicates with 100 (top left), 1000 (top right) and 10000 (bottom) time steps}
     \label{fig:ML_hist}
 \end{figure}
@@ -40,7 +40,7 @@ The procedure described in section \ref{sec:CASE2}, and summarized in algorithm 
 \caption{Normalized root MSE over iterations for various number of trials. One example of the method in case 2 when starting from the correct weights}
 \label{fig:Case2_1}
     \centering
-    \includegraphics[scale=0.6]{MSE3.png}
+    \includegraphics[scale=0.8]{MSE3_wa.png}
 \end{figure}
 
 This shows that for the lower number of trials the estimation jumps around, whereas for 10000 trials it is more stable.
@@ -51,7 +51,7 @@ This procedure was repeated 100 times for each number of trials. The underlying 
 \caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to the generative weights.}
 \label{fig:case2_avg}
     \centering
-    \includegraphics[scale=0.6]{Mean_plot_std.png}
+    \includegraphics[scale=0.8]{Mean_plot_std_wa.png}
 \end{figure}
 
 %\begin{figure}[hbt!]
@@ -72,7 +72,7 @@ Next, the initial guess for the iterations is set to be a random walk around 1. 
 \caption{Average rnMSE with variance bars of 100 replicates for each number of trials. Initial guess set to random walk around 1}
 \label{fig:MSE2}
     \centering
-    \includegraphics[scale=0.6]{MSE_starting_away.png}
+    \includegraphics[scale=0.8]{fig/MSE_starting_away_wa.png}
 \end{figure}
 
 As clear from the plots, the relaxation time for the learning is dependent on the number of trials. For initial guess equal to the generative weights, saturation happens after around 300 iterations for 10000 trials, and around 2500 iterations for 1000 trials. For smaller number of trials the solution is still moving away from the solution after 3000 iterations. Figure \ref{fig:MSE2} show that also for 100 trials there is a slow movement in the correct direction. The figures also show that the solution is more stable for the higher number of trials, since the variance bars are thinner.  
@@ -85,32 +85,32 @@ Figure \ref{fig:trajectories} shows that the weight trajectory shifts rigidly ac
 \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 100, 200, 300, 400, 500 and 1000 iterations (green)}
 \label{fig:trajectories}
     \centering
-    \includegraphics[scale=0.4]{fig/10000_100.png}
-    \includegraphics[scale = 0.4]{fig/10000_200.png}\\
-    \includegraphics[scale = 0.4]{fig/10000_300.png}
-    \includegraphics[scale = 0.4]{fig/10000_400.png}\\
-    \includegraphics[scale = 0.4]{fig/10000_500.png}
-    \includegraphics[scale = 0.4]{fig/10000_1000.png}
+    \includegraphics[scale=0.5]{fig/10000_100_wa.png}
+    \includegraphics[scale = 0.5]{fig/10000_200_wa.png}\\
+    \includegraphics[scale = 0.5]{fig/10000_300_wa.png}
+    \includegraphics[scale = 0.5]{fig/10000_400_wa.png}\\
+    \includegraphics[scale = 0.5]{fig/10000_500_wa.png}
+    \includegraphics[scale = 0.5]{fig/10000_1000_wa.png}
 \end{figure}
 
-It was also investigated what happens during the iterations for a lower number of trials. For exemplification, with 10 trials various values for the prior variance was tried to see if the results could be improved. All variants gave fluctuating error over iterations, except when the prior was set so strict that no steps were accepted. Figure \ref{fig:10st} illustrates the weight trajectory after 10000 iterations for prior variances in $\{ 0.1, 0.01, 0.001, 0.0001, 0.00001\}$. 10000 iterations was chosen to be sure that if any convergence took place, this would be shown. 
+It was also investigated what happens during the iterations for a low number of trials. From this is was observed that with little data, the accepted weight trajectory was either jumping around with a fluctuating error over iterations (for a big prior variance), or it was staying as a straight line close to the starting trajectory (for a small prior variance). For exemplification, figure \ref{fig:10st} illustrates the last accepted weight trajectory after 10000 iterations for prior variances in $\{ 0.1, 0.01, 0.001, 0.0001, 0.00001\}$. 10000 iterations was chosen to be sure that if any improvement towards the generative weights from the starting position took place, this would be shown. 
 
 \begin{figure}[P]
 \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 10000 iterations with 10 spike trains, and a prior variance of 0.1, 0.01, 0.001, 0.0001 and 0.00001}
 \label{fig:10st}
     \centering
-    \includegraphics[scale=0.4]{{10st_0.1prior}.png}
-    \includegraphics[scale = 0.4]{{10st_0.01prior}.png}\\
-    \includegraphics[scale = 0.4]{{10st_0.001prior}.png}
-    \includegraphics[scale = 0.4]{{10st_0.0001prior}.png}\\
-    \includegraphics[scale = 0.4]{{10st_0.00001prior}.png}
+    \includegraphics[scale=0.5]{{10st_0.1prior_wa}.png}
+    \includegraphics[scale = 0.5]{{10st_0.01prior_wa}.png}\\
+    \includegraphics[scale = 0.5]{{10st_0.001prior_wa}.png}
+    \includegraphics[scale = 0.5]{{10st_0.0001prior_wa}.png}\\
+    \includegraphics[scale = 0.5]{{10st_0.00001prior_wa}.png}
 \end{figure}
 
 As seen the starting trajectory used here is quite flat. One could think that this could stop the trajectory from moving away from its starting position, since it is already too good in terms of the prior. Therefore it was also tried a much more variate starting point, and a strict prior variance of 0.00001, to see the result then. The weight after 10000 iterations for this variant is shown in figure \ref{fig:10st2}.
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.6]{{10st_0.00001prior_1starting}.png}
+    \includegraphics[scale=0.8]{{10st_0.00001prior_1starting_wa}.png}
     \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 10000 iterations with 10 spike trains, and a prior variance of 0.00001. Initial weight trajectory for the iterations were drawn with }
     \label{fig:10st2}
 \end{figure}
@@ -146,10 +146,10 @@ Figure \ref{fig:10bins} shows that $0.01$ and $0.005$ gives a reasonable result,
 This was done for 1, 5, 10 and 20 number of windows, with 30 replicates for each. The mean of the rnMSE with variance bars for these are presented in figure \ref{fig:MSE_bins}. Here the prior and proposal variance used was 0.005, which was chosen as it gave reasonable results. 
 
 \begin{figure}[hbt!]
-\caption{}
+\caption{Average rnMSE with variance bars of 30 replicates of the procedure of test case 3, with constraining to 1, 5, 10 and 20 time windows, with constant weight withing each window.}
 \label{fig:MSE_bins}
     \centering
-    \includegraphics[scale=0.6]{fig/MSE_bins.png}
+    \includegraphics[scale=0.6]{fig/MSE_bins_2.png}
 \end{figure}
 
 

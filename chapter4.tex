@@ -24,12 +24,12 @@ Also, let $s_{i}(t) \in \{0,1\}$ be a binary variable taking value 1 if neuron $
     \includegraphics[scale=0.7]{Sp_t.png}
 \end{figure} 
 
-We model the variable $s_i(t)$ as a non-homogeneous Bernoulli process with expected value $\lambda (t)$, also referred to as \textit{spike rate}, that can be understood as the probability that the neuron will fire in the time bin $t$. Within the Bernoulli GLM framework, introduced in section \ref{Intro_GLM}, the spike rate is calculated from some linear predictor, $\eta_i(t)$ through a logit link function. 
+We model the variable $s_i(t)$ as a non-homogeneous Bernoulli process with expected value $\mu (t)$, also referred to as \textit{spike rate}, that can be understood as the probability that the neuron will fire in the time bin $t$. Within the Bernoulli GLM framework, introduced in section \ref{Intro_GLM}, the spike rate is calculated from some linear predictor, $\eta_i(t)$ through a logit link function. 
 
 \begin{equation}
 \label{eq:prob}
 \begin{split}
-P(s_i(t)|\lambda_i(t)) =  Ber(\lambda_i(t)) = \lambda_i(t)^{s_i(t)}(1-\lambda_i(t))^{1-s_i(t)}, \\ \lambda_i(t) = h(\eta_i(t))= \frac{exp(\eta_i(t))}{1+exp(\eta_i(t))}.
+P(s_i(t)|\mu_i(t)) =  Ber(\mu_i(t)) = \mu_i(t)^{s_i(t)}(1-\mu_i(t))^{1-s_i(t)}, \\ \mu_i(t) = h(\eta_i(t))= \frac{exp(\eta_i(t))}{1+exp(\eta_i(t))}.
 \end{split}
 \end{equation}
 
@@ -40,7 +40,7 @@ In our neural network model the linear predictor is a linear combination of the 
     \eta_i(t) = \Big (\sum_{j=0}^{N}  w_{ji}(t)s_j(t-1) \Big) + b_i.
 \end{equation}
 
-Here $w_{ji}$ is a \textit{weight} between neuron $j$ and neuron $i$, and represents the strength of the connection between the two neurons. The contribution to the linear predictor for $\lambda_i(t)$ from neuron $j$ is $w_{ji}s_j(t-1)$. A positive value for $w_{ji}$ corresponds to an excitatory synaptic connection, whereas a negative weight represents an inhibitory one. A weight with value zero, means that there is no connection. Typically these weights are considered as stationary. However, as the aim is here to study the synaptic plasticity, the weights are let to vary with time. Therefore, we set $w_{ji} = w_{ji}(t)$. The connectivity of the whole network of neurons can thus be summarized by a time dependent $N \times N$ weight matrix, $W(t)$, which for three neurons would look like, 
+Here $w_{ji}$ is a \textit{weight} between neuron $j$ and neuron $i$, and represents the strength of the connection between the two neurons. The contribution to the linear predictor for $\mu_i(t)$ from neuron $j$ is $w_{ji}s_j(t-1)$. A positive value for $w_{ji}$ corresponds to an excitatory synaptic connection, whereas a negative weight represents an inhibitory one. A weight with value zero, means that there is no connection. Typically these weights are considered as stationary. However, as the aim is here to study the synaptic plasticity, the weights are let to vary with time. Therefore, we set $w_{ji} = w_{ji}(t)$. The connectivity of the whole network of neurons can thus be summarized by a time dependent $N \times N$ weight matrix, $W(t)$, which for three neurons would look like, 
 
 \begin{equation*}
 W(t) = 
@@ -82,10 +82,10 @@ where $W=\{W(t)\}_{t=1}^N$, and
 
 Even though this is a simple prior to be used to test purposes, it is reasonable since we know that the true weights are correlated in time. 
 
-Let $S(t) = \{s_i(t)\}_{i=1}^N$ be the collection of spike data for all the neurons at time $t$. As deduced from equation \ref{eq:prob} and \ref{eq:lin_pred}, all information about the spike rate of neuron $i$, $\lambda_i(t)$, is covered by the weights, the spike data in time step $t-1$ and the background rate $b_i$. Since the spike data and the background rate are considered as know, we can set
+Let $S(t) = \{s_i(t)\}_{i=1}^N$ be the collection of spike data for all the neurons at time $t$. As deduced from equation \ref{eq:prob} and \ref{eq:lin_pred}, all information about the spike rate of neuron $i$, $\mu_i(t)$, is covered by the weights, the spike data in time step $t-1$ and the background rate $b_i$. Since the spike data and the background rate are considered as know, we can set
 
 \begin{equation}
-    P(s_i(t)|\lambda_i(t)) = P(s_i(t)|S(t-1),W(t), b_i) = P(s_i(t)|W(t)),
+    P(s_i(t)|\mu_i(t)) = P(s_i(t)|S(t-1),W(t), b_i) = P(s_i(t)|W(t)),
 \end{equation}
 
 which is the likelihood of $s_i(t)$ given some specified $W(t)$. The likelihood for all the spike data, $D=\{S(1), S(2)...,S(T)\}$ is then
@@ -137,8 +137,8 @@ Neuron 1 has a constant probability for spiking, according to a background param
 \begin{equation}
 \begin{split}
 \label{Eq:TestCase}
-    s_{1}(t) \sim \text{Ber}(\pi_{1}(t)) \hspace{3cm} \pi_{1}(t)= \frac{1}{1+e^{-b_1}} \\
-    s_{2}(t) \sim \text{Ber}(\pi_{2}(t)) \hspace{1cm} \pi_{2}(t)= \frac{1}{1+e^{-(b_2 + w_{21}(t) \cdot s_{1}(t-1)}}
+    s_{1}(t) \sim \text{Ber}(\mu_{1}(t)) \hspace{3cm} \mu_{1}(t)= \frac{1}{1+e^{-b_1}} \\
+    s_{2}(t) \sim \text{Ber}(\mu_{2}(t)) \hspace{1cm} \mu_{2}(t)= \frac{1}{1+e^{-(b_2 + w_{21}(t) \cdot s_{1}(t-1)}}
 \end{split}
 \end{equation}
 
@@ -149,7 +149,7 @@ Typical parameter values to be used in the test cases are 0.5 and 1 for b1, and 
 \centering
 \begin{tabular}{|c|c|c|c|}
 	\hline
-	Neuron & b & \pi_{s_{1}(t-1)=0} & \pi_{s_{1}(t-1)=1} \\
+	Neuron & b & \mu_{s_{1}(t-1)=0} & \mu_{s_{1}(t-1)=1} \\
 	\hline\hline
 	1 & 0 & 0.5 & 0.5\\
 	\hline
@@ -179,8 +179,8 @@ In case 1 the series of Bernoulli variables $\{s_{1}(t)\}_{t=1}^T$ and $\{s_{2}(
 
 \begin{equation}
 \begin{split}
-    score(w_{12}) = \sum_{t=2}^{T} s_{1}(t-1) (s_{2}(t)-\pi_{2}(t)), \\
-    H(w_{12}) = \sum_{t=2}^T s_{1}(t-1)^2 \pi(t)(1-\pi(t)) = \sum_{t=1}^T s_{1}(t-1) \pi(t)(1-\pi(t)).
+    score(w_{12}) = \sum_{t=2}^{T} s_{1}(t-1) (s_{2}(t)-\mu_{2}(t)), \\
+    H(w_{12}) = \sum_{t=2}^T s_{1}(t-1)^2 \mu(t)(1-\mu(t)) = \sum_{t=1}^T s_{1}(t-1) \mu(t)(1-\mu(t)).
 \end{split}
 \end{equation}
 

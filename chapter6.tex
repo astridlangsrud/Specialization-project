@@ -16,7 +16,7 @@
     \item Another problem with the method is that since all weights are drawn independently but simultaneously, the probability of drawing a weight trajectory that is considerably better than the previously accepted one gets very little when the weight trajectory is large. If we define success as the event that a weight is drawn to a better position than in the previous iteration, the success rate is 0.5. Then, for the case of 400 time steps, the probability of at least 225 successes is less than one percent. This is the problem in the first plot of case 3.  
     \item Something with running time of my methods?
 \end{itemize}
-In short the important points to note from the results is that is possible to infer a time varying synaptic connection from spike data, but with only a smoothness prior the method is dependent on having enough data. 
+%In short the important points to note from the results is that is possible to infer a time varying synaptic connection from spike data, but with only a smoothness prior the method is dependent on having enough data. 
 
 
 
@@ -24,7 +24,8 @@ In short the important points to note from the results is that is possible to in
 \begin{itemize}
     \item Particle MCMC
     \item Have a dependency more than one time step backward in time. 
-    \item Include effects of the neuron itself spiking?
+    \item Include also spike history of the neuron itself, and not only connected neuron?
+    \item Apply to real data?
     
 \end{itemize}
 
