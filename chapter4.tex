@@ -279,7 +279,9 @@ First the procedure in algorithm \ref{alg:M-H} was performed with 10 seconds (T=
     \includegraphics[scale=0.8]{fig/LR_underllying.png}
 \end{figure}
 
-An easy way to simplify the problem by utilizing the time correlations is to specify equally sized time windows and assume that the weight is constant within each window. In this case 300 seconds (T=12000) was generated, and the inference procedure was performed for various number of windows. Since we have restricted the degrees of freedom this can only give a rough estimate of the weights. However, for later work we are going to characterize the parameters of the learning rule itself rather than the weights. So since the number of parameters in the learning rule is significantly less than the number of weights, any precise and detailed inference of each weight is actually not needed. Therefore, it is useful to investigate whether strict constrains makes it possible to capture some learning trends with only one spike trajectory.
+An easy way to simplify the problem by utilizing the time correlations is to specify equally sized time windows and assume that the weight is constant within each window. In this case 300 seconds (T=12000) was generated, and the inference procedure was performed for various number of windows. Note that this was also done in \cite{Linderman}, as weights were only updated every second, whereas the time resolution used was 1000 Hz. 
+
+Since we have restricted the degrees of freedom this can only give a rough estimate of the weights. However, for later work we are going to characterize the parameters of the learning rule itself rather than the weights. So since the number of parameters in the learning rule is significantly less than the number of weights, any precise and detailed inference of each weight is actually not needed. Therefore, it is useful to investigate whether strict constrains makes it possible to capture some learning trends with only one spike trajectory.
 
 
 
