@@ -300,7 +300,7 @@ In the STDP-rule the synaptic connection between two neurons is updated accordin
 \begin{equation}
 \label{eq:STDP}
     \begin{split}
-    l(C(t), F(\leq)) = l_+(F(<t), A_+,\tau_+) - l_-(F(<t), A_-,\tau_-),\\ 
+    l(C(t), F(\leq t)) = l_+(F(<t), A_+,\tau_+) - l_-(F(<t), A_-,\tau_-),\\ 
     l_+(F(\leq t), A_+,\tau_+) = F_B(t) \sum_{t'=0}^{t} F_A(t') A_+ e^{(t-t')/\tau_+},\\ 
     l_-(F(\leq t), A_-,\tau_-) = F_A(t) \sum_{t'=0}^{t} F_B(t') A_- e^{(t-t')/\tau_-},
     \end{split}

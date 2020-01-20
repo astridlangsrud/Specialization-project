@@ -3,41 +3,42 @@
 \chapter{Discussion and conclusion}
 \label{ch:6}
 
-This chapter will wrap up the work presented in this report. 
-
-Through the methods described in section \ref{Method} the properties of ... was investigated. In chapter \ref{ch:results} the results from performing the three test cases were presented. From test case 1 with a static weight, it was shown that Newton iterations was a sufficient method to learn the weight. It was also demonstrated how variate the maximum likelihood value of the weight was for different sizes of the data set. In test case 2 is was investigated how a Bayesian framework and Metropolis-Hastings inference worked to infer dynamical weights for varying amounts of data, in a simple case with weights for nine time steps. Section \ref{sec:CASE2_r} presents plots of how the error develops over iterations for the different number of spike trains. It was also shown the movement of the weight trajectory through the iterations for the case with 10000 spike trains, and the result of 10 spike trains with varying prior variance. Finally, in case 3 the goal was to have a generative weight trajectory based on the additive STDP rule, and have a long weight trajectory to infer from one spike train only. It was shown that the method did not work when trying to infer a weight for every time step. The method was then investigated with constraining the weights to be constant within some equally sized windows. Different prior values and different length of the windows were tried and compared. The performance of the different versions are illustrated in figures \ref{fig:10bins} and \ref{fig:MSE_bins}. 
-
-This chapter will give conclude and summarize the work, present some discussion of the results and ideas for further work. 
+To wrap up the project work, this chapter presents some summary and remarks. Section \ref{sec:review} provides some discussion and additional remarks of the results. For my master thesis the goal is to expand this work. Some of the ideas for further work is presented in section \ref{sec:FW}. Section \ref{sec:conclusion} presents some summarizing statements and the main conclusions.  
 
 \section{Reviewing the results}
 \label{sec:review}
+\subsection{Summary}
+Through the methods described in section \ref{Method} the strength one time-varying synaptic connection was investigated. In chapter \ref{ch:results} the results from performing the three test cases were presented. From test case 1 with a static weight, it was shown that Newton iterations was a sufficient method to learn the weight. It was also demonstrated how variate the maximum likelihood value of the weight was for different sizes of the data set. In test case 2 is was investigated how a Bayesian framework and Metropolis-Hastings inference worked to infer dynamical weights for varying amounts of data, in a simple case with weights for nine time steps. Section \ref{sec:CASE2_r} presents plots of how the error develops over iterations for the different number of spike trains. It was also shown the movement of the weight trajectory through the iterations for the case with 10000 spike trains, and the result of 10 spike trains with varying prior variance. Finally, in case 3 the intention was to study a situation that was closer to how the real data is expected to be. The generative weight trajectory was longer and based on the additive STDP rule, and there was one spike train only. It was shown that the method did not work when trying to infer a weight for every time step. The method was then investigated with constraining the weights to be constant within some equally sized windows. Different prior values and different length of the windows were tried and compared. The performance of the different versions are illustrated in figures \ref{fig:10bins} and \ref{fig:MSE_bins}. 
 
-\begin{itemize}
-    \item The method works well if we have enough data. This is shown by the 10000 trials variants in test case 2. It is also indicated that the method can capture dynamic trends if the weights are slowly changing and recordings are made for a long time.
-    \item As little information is contained in the prior, few data points give bad results, as expected. As indicated in the histograms from case 1, even with 100 data points for a single weight it is not unlikely that the ML value is calculated to above 0.9 or below 0.5 for true value 0.7. So inferring a weight change from 0.7 to 0.8 would be hard. So for a smoothness prior, the best we can hope for is that it stabilizes around the mean weight. 
-    \item Another problem with the method is that since all weights are drawn independently but simultaneously, the probability of drawing a weight trajectory that is considerably better than the previously accepted one gets very little when the weight trajectory is large. If we define success as the event that a weight is drawn to a better position than in the previous iteration, the success rate is 0.5. Then, for the case of 400 time steps, the probability of at least 225 successes is less than one percent. This is the problem in the first plot of case 3.  
-    \item Something with running time of my methods?
-\end{itemize}
-%In short the important points to note from the results is that is possible to infer a time varying synaptic connection from spike data, but with only a smoothness prior the method is dependent on having enough data. 
+\subsection{Discussion} 
 
+On of the main findings in the results is that, provided enough data, it is possible to infer a time varying synaptic connection from spike train data. It is clear from figure 5.3, 5.4, 5.5 and 5.6 that with 10000 spike trains for one generative weight trajectory, the method is able to infer each of the weights relatively well. Figure 5.10 and 5.11 illustrates that with a long and slowly varying weight trajectory, trends in the weight dynamics can be captured with only one spike train provided that we have proper constraints. This variant gives good indications that learning trends will also be possible to capture in real data. 
 
+Another important observation is that, with the little amount of information contained in the prior, few data points give bad results. A single weight can for example not be inferred with 1 or 10 data points, with the smoothness prior. This was however not surprising. As indicated in the histograms from case 1, even with 100 data points for a single weight it is not unlikely that the maximum likelihood value for the weight as given by the data is above 0.9 or below 0.5, even though the data was generated with a weight value of 0.7. Therefore, on can not expect to for example detect a weight change from 0.7 to 0.8 from only 100 data points. For a smoothness prior, the best we can hope for is that it stabilizes around the mean weight.
+
+Another problem with the method is that since all weights are drawn independently but simultaneously, the probability of drawing a weight trajectory that is considerably better than the previously accepted one gets very little when the weight trajectory is large. If we define success as the event that a weight is drawn to a better position than in the previous iteration, the success rate is 0.5. Then, for the case of 400 time steps, the probability of at least 225 successes is less than one percent. This is the problem in the first plot of case 3.  
+
+It is also interesting to say something about the differences with the framework in this project compared to \cite{Linderman}. Since the method for inference is not the same, the results are not directly comparable. However, so far using a Bernoulli GLM compared to Poisson haven't shown to be problematic. 
 
 \section{Further work}
 \label{sec:FW}
-\begin{itemize}
-    \item Particle MCMC
-    \item Have a dependency more than one time step backward in time. 
-    \item Include also spike history of the neuron itself, and not only connected neuron?
-    \item Apply to real data?
-    
-\end{itemize}
+
+Even though the findings in this work gives insight for studying neural activity with dynamical connectivity, there was done some considerable simplifications. Therefore, before integrating it with real data, some changes will be made. In this project only activity one time step back in time for the presynaptic neuron was considered to calculate the rate of the postsynaptic neuron. This was not problematic for the inference here, as also the spike activity was simulated this way. For real data however, it is likely that also activity further back in time will have an effect, although the impact probably will decrease with a bigger time lag. Also, previous spiking of the neuron itself, not only of connected neurons will be relevant to consider. 
+
+One main goal later will be to characterize the learning rule from the spike data, rather than the weight trajectory. The assumption that the connections change according to specified learning rules also provides additional information, that can be integrated in the prior. The particle MCMC method, as used in \cite{Linderman}, will be implemented. This will make it possible to infer a longer weight trajectory, as one weight will be considered at the time, although the weight trajectory itself is not the goal. 
+
 
 \section{Conclusion}
+\label{sec:conclusion}
 
-\begin{itemize}
-    \item Short summary of the things that has been done in the project; Neurons form connections to each other, and these connections can vary with time. Various learning rules are hypothesized to govern these dynamics. The strength of connections is reflected by the spiking of neurons. Aim to develop a model to infer time varying connectivity based on spike train data. Spiking is modeled with Bernoulli GLMs. Metropolis-Hastings with smoothness prior used for inference. The method showed to work for enough data material. And as expected it did not work well for little data material per inferred weight. To avoid a solution that jumps around, the prior has to be strict for little data. A strict smoothness prior results in a straight line that cannot learn any weight dynamics. Findings in case 3 suggest that if the weights are changing slowly, and recordings are made for a long time, trends in weight dynamics can be captured with only one spike train.
-    \item The next goal is to infer parameters for the learning rules, rather than the weights. Also, particle MCMC will be used. This includes using the learning rules for the prior... 
-\end{itemize}
+The aim work was to develop a method for studying synaptic plasticity, by using statistical tool. The motivation is that synaptic plasticity is an important function for memory, so knowledge in this field can be a useful contribution to studying memory related diseases. In this project a system of two neurons and a single synapse was considered for this purpose. The activity of the postsynaptic neuron was modeled by a Bernoulli Generalized Linear Model, with a time-varying spike rate that was related to previous activity of the presynaptic neuron through a linear predictor and a logit link function. The connection strength was represented by a time dependent weight. A Bayesian approach with a smoothness prior was taken, and the Metropolis-Hastings algorithm was implemented for inferring the weight trajectory. The method showed to work for enough data material. And as expected it did not work well for little data material per inferred weight. To avoid a solution that jumps around, the prior has to be strict for little data. A strict smoothness prior results in a straight line that cannot learn any weight dynamics. Findings in case 3 suggest that if the weights are changing slowly, and recordings are made for a long time, trends in weight dynamics can be captured with only one spike train, providing enough constraints are set. This is a good indication that it can be possible to characterize the learning rules in real data. 
+
+
+
+%\begin{itemize}
+    %\item Short summary of the things that has been done in the project; Neurons form connections to each other, and these connections can vary with time. Various learning rules are hypothesized to govern these dynamics. The strength of connections is reflected by the spiking of neurons. Aim to develop a model to infer time varying connectivity based on spike train data. Spiking is modeled with Bernoulli GLMs. Metropolis-Hastings with smoothness prior used for inference. The method showed to work for enough data material. And as expected it did not work well for little data material per inferred weight. To avoid a solution that jumps around, the prior has to be strict for little data. A strict smoothness prior results in a straight line that cannot learn any weight dynamics. Findings in case 3 suggest that if the weights are changing slowly, and recordings are made for a long time, trends in weight dynamics can be captured with only one spike train.
+    %\item The next goal is to infer parameters for the learning rules, rather than the weights. Also, particle MCMC will be used. This includes using the learning rules for the prior... 
+%\end{itemize}
 
 
 
