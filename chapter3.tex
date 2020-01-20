@@ -97,7 +97,7 @@ In a Bernoulli process the response variable, $y$, takes the value 1 with a prob
 \begin{split}
 \label{eq:B}
     f(y|\mu) = Ber(\mu) = \mu^{y}(1-\mu)^{1-y}\\
-    = \text{exp} ( y  \text{log}\big(\frac{\mu}{1-\mu}\big) + \text{log}(1-\mu)),
+    = \text{exp} ( y  \times \text{log}\big(\frac{\mu}{1-\mu}\big) + \text{log}(1-\mu)),
 \end{split}
 \end{equation}
 
@@ -157,7 +157,7 @@ The score function is the vector of partial derivatives of the loglikelihood. In
 
 \begin{equation}
 \label{eq:score}
-s(\bm{\beta}) = \sum_{i=1}^{n}s_i(\bm{\beta}) = \sum_{i=1}^{n} \frac{\partial l_i(\bm{\beta})}{\partial \bm{\beta}} = \sum_{i=1}^{n} {\bf x_i} \Big ( y_i - \frac{\exp({\bf x_i^T} \bm{ \beta})}{1 + \exp({\bf x_i^T} \bm{ \beta})}\Big )
+\text{score}(\bm{\beta}) = \sum_{i=1}^{n}s_i(\bm{\beta}) = \sum_{i=1}^{n} \frac{\partial l_i(\bm{\beta})}{\partial \bm{\beta}} = \sum_{i=1}^{n} {\bf x_i} \Big ( y_i - \frac{\exp({\bf x_i^T} \bm{ \beta})}{1 + \exp({\bf x_i^T} \bm{ \beta})}\Big )
 \end{equation}
 
 The observed Fisher information matrix is defined as 
