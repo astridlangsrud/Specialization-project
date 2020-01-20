@@ -3,12 +3,14 @@
 \chapter{Discussion and conclusion}
 \label{ch:6}
 
-\begin{itemize}
-    \item Short summary of results
-    \item A few sentences of what I am going to present in this chapter
-\end{itemize}
+This chapter will wrap up the work presented in this report. 
+
+Through the methods described in section \ref{Method} the properties of ... was investigated. In chapter \ref{ch:results} the results from performing the three test cases were presented. From test case 1 with a static weight, it was shown that Newton iterations was a sufficient method to learn the weight. It was also demonstrated how variate the maximum likelihood value of the weight was for different sizes of the data set. In test case 2 is was investigated how a Bayesian framework and Metropolis-Hastings inference worked to infer dynamical weights for varying amounts of data, in a simple case with weights for nine time steps. Section \ref{sec:CASE2_r} presents plots of how the error develops over iterations for the different number of spike trains. It was also shown the movement of the weight trajectory through the iterations for the case with 10000 spike trains, and the result of 10 spike trains with varying prior variance. Finally, in case 3 the goal was to have a generative weight trajectory based on the additive STDP rule, and have a long weight trajectory to infer from one spike train only. It was shown that the method did not work when trying to infer a weight for every time step. The method was then investigated with constraining the weights to be constant within some equally sized windows. Different prior values and different length of the windows were tried and compared. The performance of the different versions are illustrated in figures \ref{fig:10bins} and \ref{fig:MSE_bins}. 
+
+This chapter will give conclude and summarize the work, present some discussion of the results and ideas for further work. 
 
 \section{Reviewing the results}
+\label{sec:review}
 
 \begin{itemize}
     \item The method works well if we have enough data. This is shown by the 10000 trials variants in test case 2. It is also indicated that the method can capture dynamic trends if the weights are slowly changing and recordings are made for a long time.
@@ -21,6 +23,7 @@
 
 
 \section{Further work}
+\label{sec:FW}
 \begin{itemize}
     \item Particle MCMC
     \item Have a dependency more than one time step backward in time. 

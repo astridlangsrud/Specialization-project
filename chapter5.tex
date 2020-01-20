@@ -27,7 +27,7 @@ One can conclude that the algorithm converges by visual inspection of the plots.
     \includegraphics[scale = 0.40]{fig/19_hist_100.png}
     \includegraphics[scale = 0.40]{fig/19_hist_1000.png}
     \includegraphics[scale = 0.40]{fig/19_hist_10000.png}
-    \caption{Histograms of estimated weighs from 1000 replicates with 100 (top left), 1000 (top right) and 10000 (bottom) time steps}
+    \caption{Histograms of the maximum likelihood weight in 1000 replicates with 100 (top left), 1000 (top right) and 10000 (bottom) time steps, for generative weight equal to 0.7.}
     \label{fig:ML_hist}
 \end{figure}
 
@@ -75,14 +75,14 @@ Next, the initial guess for the iterations is set to be a random walk around 1. 
     \includegraphics[scale=0.8]{fig/MSE_starting_away_wa.png}
 \end{figure}
 
-As clear from the plots, the relaxation time for the learning is dependent on the number of trials. For initial guess equal to the generative weights, saturation happens after around 300 iterations for 10000 trials, and around 2500 iterations for 1000 trials. For smaller number of trials the solution is still moving away from the solution after 3000 iterations. Figure \ref{fig:MSE2} show that also for 100 trials there is a slow movement in the correct direction. The figures also show that the solution is more stable for the higher number of trials, since the variance bars are thinner.  
+As clear from the plots, the relaxation time for the learning is dependent on the number of trials. For initial guess equal to the generative weights (figure \ref{fig:case2_avg}), saturation happens after around 300 iterations for 10000 trials, and around 2500 iterations for 1000 trials. For smaller number of trials the error is still increasing after 3000 iterations. Figure \ref{fig:MSE2} however show that also for 100 trials there is a slow movement in the correct direction, when the starting point is not the generative weights. The figures also show that the solution is more stable for the higher number of trials, since the variance bars are thinner.  
 
-To visualize what is happening during the course of the iterations figure \ref{fig:trajectories} displays the how the last accepted weight trajectory to the sample after 100,200,300,400,500 and 1000 iterations looks like, for initial guess a random walk around 1 and 10000 trials. 
+To visualize what is happening during the course of the iterations figure \ref{fig:trajectories} displays the how the last accepted weight trajectory to the sample after 100,200,300,400,500 and 1000 iterations looks like, for initial guess a random walk around 1, and 10000 trials. 
 
 Figure \ref{fig:trajectories} shows that the weight trajectory shifts rigidly across iterations towards the generative value, and eventually ends up relatively close to the true weights. This is enforced by the prior distribution, which demands a continuity in time. 
 
 \begin{figure}[P]
-\caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 100, 200, 300, 400, 500 and 1000 iterations (green)}
+\caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 100, 200, 300, 400, 500 and 1000 iterations (green), for 10000 spike trains and a prior variance of 0.0001.}
 \label{fig:trajectories}
     \centering
     \includegraphics[scale=0.5]{fig/10000_100_wa.png}
@@ -111,14 +111,16 @@ As seen the starting trajectory used here is quite flat. One could think that th
 \begin{figure}
     \centering
     \includegraphics[scale=0.8]{{10st_0.00001prior_1starting_wa}.png}
-    \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 10000 iterations with 10 spike trains, and a prior variance of 0.00001. Initial weight trajectory for the iterations were drawn with }
+    \caption{Plots of the true weights (blue), the initial guess (orange), and the inferred weights after 10000 iterations with 10 spike trains, and a prior variance of 0.00001. Initial weight trajectory for the iterations were drawn with variance equal to 0.1.}
     \label{fig:10st2}
 \end{figure}
+
+This shows that again the inferred weights ends up as a straight line, but not close to the generative weights. 
 
 
 \section{CASE 3}
 \label{sec:CASE3_r}
-First the variant where the weight for all time steps are drawn individually was performed. This was tried with various values for the variance in the prior and proposal distribution. For a low value of the prior variance compared to the proposal variance, no new weight trajectories were accepted in the algorithm, so the estimation just stays where it starts. If the relative variance is large enough for weight trajectories to be accepted, it does not move towards the correct solution, and the error increases with iteration. One example of the generative, initial and inferred weights after 3000 iterations is shown in figure \ref{fig:400_weights}. 
+First the variant where the weights for all time steps are drawn individually was performed. This was tried with various values for the variance in the prior and proposal distribution. For a low value of the prior variance compared to the proposal variance, no new weight trajectories were accepted in the algorithm, so the estimation just stays where it starts. If the relative variance is large enough for weight trajectories to be accepted, it does not move towards the correct solution, and the error increases with iteration. One example of the generative, initial and inferred weights after 3000 iterations is shown in figure \ref{fig:400_weights}. 
 
 
 \begin{figure}

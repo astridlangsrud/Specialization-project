@@ -221,7 +221,7 @@ The relative amount that the likelihood and the prior contributes to the posteri
 \section{Inference with MCMC}
 \label{Metropolis}
 
-Inference in the Bayesian framework is often performed using Markov Chain Monte Carlo methods (MCMC). MCMC is a class of algorithm for sampling from a probability distribution, which in Bayesian inference is the posterior distribution over the parameters. A Markov chain Monte Carlo (MCMC) techniques utilizes, as the name suggests, a combination of Markov chains with Monte Carlo sampling. A Markov chain is a sequence of events, typically time indexed, that satisfies the Markov property, which says that future events only depends on the present and not on the past. Monte Carlo techniques is the use of random sampling from a distribution to make numerical estimates. However, this requires that we can sample from the distribution, which is not always straight forward. So the idea of MCMC to construct a Markov chain that has a limiting distribution equal to the one we want to sample from, and this way obtain the sample we are looking for. Metropolis-Hastings is one of several MCMCs.
+Inference in the Bayesian framework is often performed using Markov Chain Monte Carlo methods (MCMC). MCMC is a class of algorithm for sampling from a probability distribution, which in Bayesian inference is the posterior distribution over the parameters. A Markov chain Monte Carlo (MCMC) techniques utilizes, as the name suggests, a combination of Markov chains with Monte Carlo sampling. A Markov chain is a sequence of events, typically time indexed, that satisfies the Markov property, which says that future events only depends on the present and not on the past. Monte Carlo techniques is the use of random sampling from a distribution to make numerical estimates. However, this requires that we can sample from the distribution, which is not always straightforward. So the idea of MCMC to construct a Markov chain that has a limiting distribution equal to the one we want to sample from, and this way obtain the sample we are looking for. Metropolis-Hastings is one of several MCMCs.
 
 \subsection{Metropolis-Hastings algorithm}
 
@@ -261,7 +261,7 @@ It can be shown that the reversibility condition,
     p(x)T(x'|x) = p(x')T(x|x'),
 \end{equation} 
 
-is satisfied, which implies that $p(x)$ is a stationary distribution of the Markov chain. Hence, for some burning time $n$, we have that $\{x_n, x_{n+1}, x_{n+2},...\}$ is an approximate sample from $p(x)$.
+is satisfied, which implies that $p(x)$ is a stationary distribution of the Markov chain. Hence, for some burn in time $n$, we have that $\{x_n, x_{n+1}, x_{n+2},...\}$ is an approximate sample from $p(x)$.
 
  %This can be done if we cannot sample from a distribution directly. This means that in collecting sample values $\{\theta_0, \theta_1, \theta_2,...\}$ for an unknown parameter $\theta$, the sample $\{\theta_m, \theta_{m+1}, \theta_{m+2},...\}$ will approximately correspond to a random sample from the posterior distribution for $m$ large enough. 
 

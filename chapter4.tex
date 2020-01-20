@@ -82,7 +82,7 @@ where $W=\{W(t)\}_{t=1}^N$, and
 
 Even though this is a simple prior to be used to test purposes, it is reasonable since we know that the true weights are correlated in time. 
 
-Let $S(t) = \{s_i(t)\}_{i=1}^N$ be the collection of spike data for all the neurons at time $t$. As deduced from equation \ref{eq:prob} and \ref{eq:lin_pred}, all information about the spike rate of neuron $i$, $\mu_i(t)$, is covered by the weights, the spike data in time step $t-1$ and the background rate $b_i$. Since the spike data and the background rate are considered as know, we can set
+Let $S(t) = \{s_i(t)\}_{i=1}^N$ be the collection of spike data for all the neurons at time $t$. As deduced from equation \ref{eq:prob} and \ref{eq:lin_pred}, all information about the spike rate of neuron $i$, $\mu_i(t)$, is covered by the weights, the spike data in time step $t-1$ and the background rate $b_i$. Since the spike data and the background rate are considered as known, we can set
 
 \begin{equation}
     P(s_i(t)|\mu_i(t)) = P(s_i(t)|S(t-1),W(t), b_i) = P(s_i(t)|W(t)),
@@ -138,11 +138,11 @@ Neuron 1 has a constant probability for spiking, according to a background param
 \begin{split}
 \label{Eq:TestCase}
     s_{1}(t) \sim \text{Ber}(\mu_{1}(t)) \hspace{3cm} \mu_{1}(t)= \frac{1}{1+e^{-b_1}} \\
-    s_{2}(t) \sim \text{Ber}(\mu_{2}(t)) \hspace{1cm} \mu_{2}(t)= \frac{1}{1+e^{-(b_2 + w_{21}(t) \cdot s_{1}(t-1)}}
+    s_{2}(t) \sim \text{Ber}(\mu_{2}(t)) \hspace{1cm} \mu_{2}(t)= \frac{1}{1+e^{-(b_2 + w_{21}(t) \cdot s_{1}(t-1))}}
 \end{split}
 \end{equation}
 
-Typical parameter values to be used in the test cases are 0.5 and 1 for b1, and -1 and 0 for b2. The value for the weight $w_{12}$ will be let to vary with time, but a typical size for it will be $w_{12}=0.7$. To get a better intuition it is useful to translate this to the corresponding firing rates. Table \ref{table:parameters} shows the resulting firing rates for the different parameter values
+Typical parameter values to be used in the test cases are 0.5 and 1 for $b1_$, and -1 and 0 for $b_2$. The value for the weight $w_{12}$ will be let to vary with time, but a typical size for it will be $w_{12}=0.7$. To get a better intuition it is useful to translate this to the corresponding firing rates. Table \ref{table:parameters} shows the resulting firing rates for the different parameter values
 
 
 \begin{table}[!h]
